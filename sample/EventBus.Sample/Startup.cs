@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using EventBus.Core;
+using EventBus.Publish;
+using EventBus.Subscribe;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,6 +28,22 @@ namespace EventBus.Sample
         {
             // Add framework services.
             services.AddMvc();
+
+            services.AddEventBus(options =>
+            {
+                options.HostName = "localhost";
+            });
+
+            services.AddPub(options =>
+            {
+
+            });
+
+            services.AddSub(options =>
+            {
+                options.ConsumerClientCount = 1;
+                options.DefaultGroup = "eventbus.testgroup";
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -32,6 +51,8 @@ namespace EventBus.Sample
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            app.UseSub();
 
             app.UseMvc();
         }

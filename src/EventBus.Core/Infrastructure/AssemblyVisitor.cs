@@ -12,7 +12,6 @@ namespace EventBus.Core.Infrastructure
         {
             foreach(var type in Assembly.GetEntryAssembly().ExportedTypes)
             {
-                if (type.GetTypeInfo().IsClass) Classes.Add(type);
             }
         }
     }

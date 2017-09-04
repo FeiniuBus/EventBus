@@ -20,6 +20,7 @@ namespace EventBus.Subscribe.Infrastructure
             , SubscribeInfoCache cache)
         {
             _disposables = new List<IDisposable>();
+            _channels = new List<IModel>();
             _connectionFactoryAccessor = connectionFactoryAccessor;
             _cache = cache;
         }

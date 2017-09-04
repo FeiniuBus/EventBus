@@ -14,6 +14,7 @@ namespace EventBus.Core.Infrastructure
         public MessageInfoCache(AssemblyVisitor assemblyVisitor)
         {
             _assemblyVisitor = assemblyVisitor;
+            Init();
         }
 
         public MessageInfo GetMessageInfo(Type type)

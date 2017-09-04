@@ -10,7 +10,7 @@ namespace EventBus.Core
 
         public string VirtualHost { get; set; } = ConnectionFactory.DefaultVHost;
 
-        public string Host { get; set; }
+        public string HostName { get; set; }
 
         public int Port { get; set; } = AmqpTcpEndpoint.UseDefaultPort;
 
