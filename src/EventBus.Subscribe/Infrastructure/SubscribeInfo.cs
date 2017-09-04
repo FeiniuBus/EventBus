@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EventBus.Subscribe.Infrastructure
 {
-    internal class SubscribeInfo
+    public class SubscribeInfo
     {
         public Type HandlerType { get; set; }
 
@@ -15,5 +13,7 @@ namespace EventBus.Subscribe.Infrastructure
         public string Name { get; set; }
 
         public string Group { get; set; }
+
+        public string Key { get; set; }
     }
 }

@@ -10,5 +10,11 @@ namespace EventBus.Core.Infrastructure
         {
             return @this.Classes.Where(cls => cls.GetTypeInfo().IsSubclassOf(type)).ToArray();
         }
+
+        public static Type[] GetTypesOfAttribute<AttributeT>(this AssemblyVisitor @this) where AttributeT : Attribute
+        {
+            var types = @this.Classes.Where(cls => cls.GetTypeInfo().GetCustomAttribute<AttributeT>() != null).ToArray();
+            return types;
+        }
     }
 }

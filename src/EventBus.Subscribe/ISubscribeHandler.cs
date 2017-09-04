@@ -2,8 +2,8 @@
 
 namespace EventBus.Subscribe
 {
-    public interface ISubscribeHandler<MT> where MT : class
+    public interface ISubscribeHandler<MessageT> where MessageT : class
     {
-        Task HandleAsync(MT message);
+        Task HandleAsync(MessageT message);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace EventBus.Sample.Events
 {
-    [Event(Name = "NewUser")]
+    [Event(Key = "NewUser")]
     public class NewUserEvent
     {
         public long Id { get; set; }
@@ -12,3 +12,4 @@ namespace EventBus.Sample.Events
         public string Phone { get; set; }
     }
 }
+

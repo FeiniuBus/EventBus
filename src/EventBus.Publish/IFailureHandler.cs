@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace EventBus.Core
+namespace EventBus.Publish
 {
-    public interface IMessageHandler<MT> where MT : class
+    public interface IFailureHandler<MT> where MT : class
     {
         Task HandleAsync(MT message);
     }

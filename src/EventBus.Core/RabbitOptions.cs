@@ -1,7 +1,4 @@
 ﻿using RabbitMQ.Client;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace EventBus.Core
 {
@@ -16,5 +13,7 @@ namespace EventBus.Core
         public string Host { get; set; }
 
         public int Port { get; set; } = AmqpTcpEndpoint.UseDefaultPort;
+
+        public string DefaultExchangeName => "default.exchange@feiniubus";
     }
 }

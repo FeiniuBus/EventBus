@@ -1,13 +1,14 @@
 ﻿using EventBus.Core;
 using EventBus.Core.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EventBus.Publish
+namespace EventBus.Publish.Infrastructure
 {
     public class DefaultPublisher : IPublisher
     {
@@ -15,18 +16,21 @@ namespace EventBus.Publish
         private readonly IMessageSerializer _messageSerializer;
         private readonly IConnectionFactoryAccessor _connectionFactoryAccessor;
         private readonly IServiceProvider _serviceProvider;
+        private readonly RabbitOptions _rabbitOptions;
         private IModel Channel;
 
         public DefaultPublisher(
             MessageInfoCache messageInfoCache
             , IMessageSerializer messageSerializer
             , IConnectionFactoryAccessor connectionFactoryAccessor
-            , IServiceProvider serviceProvider)
+            , IServiceProvider serviceProvider
+            , IOptions<RabbitOptions> rabbitOptions)
         {
             _messageInfoCache = messageInfoCache;
             _messageSerializer = messageSerializer;
             _connectionFactoryAccessor = connectionFactoryAccessor;
             _serviceProvider = serviceProvider;
+            _rabbitOptions = rabbitOptions.Value;
         }
 
         public Task PublishAsync<MessageT>(MessageT message) where MessageT: class
@@ -50,7 +54,7 @@ namespace EventBus.Publish
             EnsureChannel();
 
             Channel.BasicPublish(
-                _messageInfoCache.GetRequiredMessageName<MessageT>()
+                _messageInfoCache.GetMessageName<MessageT>() ?? _rabbitOptions.DefaultExchangeName
                 , _messageInfoCache.GetMessageKey<MessageT>()
                 , null
                 , _messageSerializer.Serialize(message)

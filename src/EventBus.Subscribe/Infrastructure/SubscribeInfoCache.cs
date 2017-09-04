@@ -8,19 +8,24 @@ using System.Reflection;
 
 namespace EventBus.Subscribe.Infrastructure
 {
-    internal class SubscribeInfoCache
+    public class SubscribeInfoCache
     {
         private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeInfo>> _cache
             = new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeInfo>>();
 
+        public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeInfo>> Entries => _cache;
+
         private readonly AssemblyVisitor _assemblyVisitor;
         private readonly SubscribeOptions _subscribeOptions;
+        private readonly RabbitOptions _rabbitOptions;
 
         public SubscribeInfoCache(AssemblyVisitor assemblyVisitor
-            , IOptions<SubscribeOptions> subscribeOptions)
+            , IOptions<SubscribeOptions> subscribeOptions
+            , IOptions<RabbitOptions> rabbitOptions)
         {
             _assemblyVisitor = assemblyVisitor;
             _subscribeOptions = subscribeOptions.Value;
+            _rabbitOptions = rabbitOptions.Value;
 
             Init();
         }
@@ -40,7 +45,7 @@ namespace EventBus.Subscribe.Infrastructure
         private SubscribeInfo GetSubscribeInfo(Type type)
         {
             var innerType = type.GenericTypeArguments[0];
-            var name = innerType.GetTypeInfo().GetCustomAttribute<EventAttribute>()?.Name ?? throw new InvalidOperationException("Name can not be null");
+            var @event = innerType.GetTypeInfo().GetCustomAttribute<EventAttribute>();
             var group = type.GetTypeInfo().GetCustomAttribute<SubscribeAttribute>()?.Group 
                 ?? _subscribeOptions.DefaultGroup
                 ?? throw new InvalidOperationException("Group can not be null");
@@ -50,8 +55,9 @@ namespace EventBus.Subscribe.Infrastructure
                 HandlerType = type,
                 InnerType = innerType,
                 BaseType = type.GetTypeInfo().BaseType,
-                Name = name,
-                Group = group
+                Name = @event?.Name ?? _rabbitOptions.DefaultExchangeName,
+                Group = group,
+                Key = @event?.Key
             };
         }
     }
