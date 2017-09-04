@@ -1,4 +1,6 @@
-﻿namespace EventBus.Subscribe
+﻿using RabbitMQ.Client;
+
+namespace EventBus.Subscribe
 {
     public class SubscribeContext
     {
@@ -8,6 +10,10 @@
 
         public string Queue { get; set; }
 
-        public long DeliveryTag { get; set; }
+        public ulong DeliveryTag { get; set; }
+
+        public IModel Channel { get; set; }
+
+        public byte[] Content { get; set; }
     }
 }

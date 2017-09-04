@@ -14,6 +14,8 @@ namespace EventBus.Subscribe.Infrastructure
         private readonly IConnectionFactoryAccessor _connectionFactoryAccessor;
         private readonly SubscribeInfoCache _cache;
 
+        public Action<SubscribeContext> OnReceive { get; set; }
+
         public DefaultSubscribeClient(IConnectionFactoryAccessor connectionFactoryAccessor
             , SubscribeInfoCache cache)
         {
@@ -67,13 +69,21 @@ namespace EventBus.Subscribe.Infrastructure
         private void EnsureConsumer(IModel channel, string queue)
         {
             var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += OnConsumerReceived;
-            channel.BasicConsume(queue, false, consumer);
-        }
+            consumer.Received += (object sender, BasicDeliverEventArgs e) =>
+            {
+                var context = new SubscribeContext
+                {
+                    Name = e.Exchange,
+                    Key = e.RoutingKey,
+                    Queue = queue,
+                    DeliveryTag = e.DeliveryTag,
+                    Channel = channel
+                };
+                
+                OnReceive?.Invoke(context);
+            };
 
-        private void OnConsumerReceived(object sender, BasicDeliverEventArgs e)
-        {
-            
+            channel.BasicConsume(queue, false, consumer);
         }
 
         public void Dispose()
@@ -82,6 +92,16 @@ namespace EventBus.Subscribe.Infrastructure
             {
                 disposable.Dispose();
             }
+        }
+
+        public void Ack(SubscribeContext context)
+        {
+            context.Channel.BasicAck(context.DeliveryTag, false);
+        }
+
+        public void Reject(SubscribeContext context)
+        {
+            context.Channel.BasicReject(context.DeliveryTag, true);
         }
     }
 }

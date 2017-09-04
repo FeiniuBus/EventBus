@@ -19,27 +19,14 @@ namespace EventBus.Subscribe.Infrastructure
 
         public void Start()
         {
-            StartSubscribeClients();
+            StartConsumer();
         }
 
-        private ISubscribeClient[] GetSubscribeClients()
+        private void StartConsumer()
         {
-            var clients = _serviceProvider.GetServices<ISubscribeClient>().ToArray();
-            foreach(var client in clients)
-            {
-                _disposables.Add(client);
-            }
-
-            return clients;
-        }
-
-        private void StartSubscribeClients()
-        {
-            var subscribeClients = GetSubscribeClients();
-            foreach(var client in subscribeClients)
-            {
-                client.Start();
-            }
+            var consumer = _serviceProvider.GetService<ISubscribeConsumer>();
+            _disposables.Add(consumer);
+            consumer.Start();
         }
 
         public void Dispose()
