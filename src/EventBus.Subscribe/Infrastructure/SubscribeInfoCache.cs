@@ -30,6 +30,22 @@ namespace EventBus.Subscribe.Infrastructure
             Init();
         }
 
+        public SubscribeInfo GetSubscribeInfo(string name, string group)
+        {
+            if (!Entries.TryGetValue(name, out ConcurrentDictionary<string, SubscribeInfo> innerDict))
+            {
+                return null;
+            }
+            else if (!innerDict.TryGetValue(group, out SubscribeInfo subscribeInfo))
+            {
+                return null;
+            }
+            else
+            {
+                return subscribeInfo;
+            }
+        }
+
         private void Init()
         {
             var subHandlers = _assemblyVisitor.GetSubClassesOf(typeof(ISubscribeHandler<>));

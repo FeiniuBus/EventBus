@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using EventBus.Subscribe.Internal;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +34,23 @@ namespace EventBus.Subscribe.Infrastructure
                 _disposables.Add(client);
             }
             return clients;
+        }
+
+        private void RegisterClient(ISubscribeClient client)
+        {
+            client.OnReceive = (SubscribeContext context) =>
+            {
+                try
+                {
+                    var invoker = new DefaultConsumerInvoker(_serviceProvider, context);
+                    invoker.InvokeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+                    client.Ack(context);
+                }
+                catch
+                {
+                    client.Reject(context);
+                }
+            };
         }
 
         public void Dispose()
