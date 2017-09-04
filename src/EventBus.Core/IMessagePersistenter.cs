@@ -16,7 +16,7 @@ namespace EventBus.Core
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task<IMessage<TContent>> InsertAsync(TContent content, IMetaData metaData = null);
+        Task<IMessage<TContent>> InsertAsync(TContent content, MessageType messageType, IMetaData metaData = null);
         /// <summary>
         /// [For EntityFramework] Change state of a specialized message asynchrony.
         /// </summary>
@@ -32,7 +32,7 @@ namespace EventBus.Core
         /// </summary>
         /// <param name="message"></param>
         /// <returns></returns>
-        Task<IMessage<TContent>> InsertAsync(TContent content, IDbConnection dbConnection, IDbTransaction dbTransaction, IMetaData metaData = null);
+        Task<IMessage<TContent>> InsertAsync(TContent content, MessageType messageType, IDbConnection dbConnection, IDbTransaction dbTransaction, IMetaData metaData = null);
         /// <summary>
         /// [For Ado.NET] Change state of a specialized message asynchrony.
         /// </summary>

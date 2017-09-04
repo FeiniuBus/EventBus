@@ -72,14 +72,14 @@ namespace EventBus.MySQL
             }
         }
 
-        public async Task<IMessage<TContent>> InsertAsync(TContent content, IMetaData metaData = null)
+        public async Task<IMessage<TContent>> InsertAsync(TContent content, MessageType messageType, IMetaData metaData = null)
         {
             var connection = _dbContext.Database.GetDbConnection();
             var transaction = GetDbTransaction();
-            return await InsertAsync(content, connection, transaction, metaData);            
+            return await InsertAsync(content, messageType, connection, transaction, metaData);            
         }
 
-        public async Task<IMessage<TContent>> InsertAsync(TContent content, IDbConnection dbConnection, IDbTransaction dbTransaction, IMetaData metaData = null)
+        public async Task<IMessage<TContent>> InsertAsync(TContent content, MessageType messageType, IDbConnection dbConnection, IDbTransaction dbTransaction, IMetaData metaData = null)
         {
             var message = new DefaultMessage<TContent>(content);
             if (metaData != null)
@@ -97,7 +97,7 @@ namespace EventBus.MySQL
                     TransactId = TransactionID,
                     MetaData = metaJson,
                     Content = contentJson,
-                    Type = (short)MessageType.Published,
+                    Type = (short)messageType,
                     State = (short)message.State,
                     CreationDate = message.CreateTime
                 }, dbTransaction);
