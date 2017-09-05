@@ -15,7 +15,10 @@ namespace EventBus.Core
         public int Port { get; set; } = AmqpTcpEndpoint.UseDefaultPort;
 
         public string DefaultExchangeName => "default.exchange@feiniubus";
+<<<<<<< HEAD:src/EventBus.Core/RabbitOptions.cs
 
         public int QueueMessageExpires { get; set; } = 864000000;
+=======
+>>>>>>> parent of 32b76d2... add tx:src/EventBus.Core/RabbitOptions.cs
     }
 }
