@@ -1,5 +1,6 @@
 ﻿using EventBus.Core;
 using EventBus.Publish;
+using EventBus.Sample.EventHandlers;
 using EventBus.Subscribe;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,6 +44,8 @@ namespace EventBus.Sample
             {
                 options.ConsumerClientCount = 1;
                 options.DefaultGroup = "eventbus.testgroup";
+
+                options.RegisterExternalCallback("eventbus.testtopic", "eventbus.testgroup", typeof(NewUserEventHandler));
             });
         }
 

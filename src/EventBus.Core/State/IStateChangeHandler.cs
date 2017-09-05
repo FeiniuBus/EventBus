@@ -6,8 +6,8 @@ namespace EventBus.Core.State
 {
     public interface IStateChangeHandler
     {
-        bool CanHandle(Type contentType, string content, IMetaData metaData, StateChangedArgs args);
+        bool CanHandle(Type contentType, object content, IMetaData metaData, StateChangedArgs args);
 
-        Task HandleAsync(Type contentType, string content, IMetaData metaData, StateChangedArgs args);
+        Task HandleAsync(Type contentType, object content, IMetaData metaData, StateChangedArgs args);
     }
 }

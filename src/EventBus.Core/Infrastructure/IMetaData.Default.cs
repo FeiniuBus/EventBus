@@ -39,7 +39,7 @@ namespace EventBus.Core.Infrastructure
             _source.Remove(name);
         }
 
-        public void Contact(IMetaData metaData)
+        public void Unoin(IMetaData metaData)
         {
             var iterator = GetEnumerator();
             while (iterator.MoveNext())
@@ -66,7 +66,5 @@ namespace EventBus.Core.Infrastructure
             }
             return newKey;
         }
-
-        public IDictionary<string, string> GetDictionary() => _source;
     }
 }

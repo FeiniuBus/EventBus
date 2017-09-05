@@ -1,19 +1,14 @@
-﻿using EventBus.Core;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace EventBus.Core
 {
     public static class ServiceCollectionExtenssion
     {
-        public static void AddEventBus(this IServiceCollection serviceCollection, Action<EventBusOptions> configure)
+        public static IServiceCollection AddEventBus(this IServiceCollection services, Action<RabbitOptions> setup)
         {
-            var options = new EventBusOptions();
-            configure(options);
-
-            foreach(var extension in options.Extensions)
-            {
-                extension.AddServices(serviceCollection);
-            }
+            services.Configure(setup);
+            return services;
         }
     }
 }

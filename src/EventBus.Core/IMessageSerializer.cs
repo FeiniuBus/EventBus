@@ -1,8 +1,11 @@
-﻿namespace EventBus.Core
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace EventBus.Core
 {
     public interface IMessageSerializer
     {
-        byte[] Serialize(object message);
-        T Deserialize<T>(byte[] message);
+        byte[] Serialize<MessageT>(MessageT message) where MessageT : class;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace EventBus.Core.State
 {
-    public enum MessageState : short
+    public enum MessageState
     {
         Processing = 1,
         Succeeded = 2,

@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
-using EventBus.Core;
-using EventBus.Sample.Events;
 using EventBus.Subscribe;
 
 namespace EventBus.Sample.EventHandlers
 {
-    public class NewUserEventHandler : ISubscribeHandler<NewUserEvent>
+    public class NewUserEventHandler : ISubscribeHandler
     {
-        public Task HandleAsync(NewUserEvent message)
+        public Task<bool> HandleAsync(string message)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(true);
         }
     }
 }

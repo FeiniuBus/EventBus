@@ -3,18 +3,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using EventBus.Publish;
+using EventBus.Sample.Events;
 
 namespace EventBus.Sample.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
+        private readonly IPublisher _publisher;
+
+        public ValuesController(IPublisher publisher)
+        {
+            _publisher = publisher;
+        }
+
         // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
         {
+
             return new string[] { "value1", "value2" };
         }
+
+        //public Task PublishAsync(IDbTransic tran, Action<string> businessMethod)
+        //{
+        //    try
+        //    {
+                
+        //        businessMethod.Invoke();
+
+        //        var success = Publish(message);
+        //        if (!success) throw new Exception("");
+        //    } catch (Exception ex)
+        //    {
+        //        dbCont
+        //    }
+
+        //}
 
         // GET api/values/5
         [HttpGet("{id}")]

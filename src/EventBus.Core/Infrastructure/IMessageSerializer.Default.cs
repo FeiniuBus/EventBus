@@ -5,16 +5,10 @@ namespace EventBus.Core.Infrastructure
 {
     public class DefaultMessageSerializer : IMessageSerializer
     {
-        public T Deserialize<T>(byte[] message)
+        public byte[] Serialize<MessageT>(MessageT message) where MessageT : class
         {
-            var jsonStr = Encoding.UTF8.GetString(message);
-            return JsonConvert.DeserializeObject<T>(jsonStr);
-        }
-
-        public byte[] Serialize(object message)
-        {
-            var jsonStr = JsonConvert.SerializeObject(message);
-            return Encoding.UTF8.GetBytes(jsonStr);
+            var str = JsonConvert.SerializeObject(message);
+            return Encoding.UTF8.GetBytes(str);
         }
     }
 }

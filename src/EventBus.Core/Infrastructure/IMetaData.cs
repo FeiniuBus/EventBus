@@ -9,8 +9,7 @@ namespace EventBus.Core.Infrastructure
         void Set(string name, string value);
         void Remove(string name);
         string Get(string name);
-        void Contact(IMetaData metaData);
+        void Unoin(IMetaData metaData);
         IEnumerator<KeyValuePair<string, string>> GetEnumerator();
-        IDictionary<string, string> GetDictionary();
     }
 }
