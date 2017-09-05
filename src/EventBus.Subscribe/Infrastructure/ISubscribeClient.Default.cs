@@ -1,4 +1,5 @@
 ﻿using EventBus.Core;
+using EventBus.Core.Infrastructure;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
