@@ -31,6 +31,8 @@ namespace EventBus.Publish
 
         public Task PublishAsync(string exchange, string routingKey, byte[] body)
         {
+            _channel.ExchangeDeclare(exchange, "topic", true, false, null);
+
             _channel.BasicPublish(exchange, routingKey, null, body);
             return Task.CompletedTask;
         }

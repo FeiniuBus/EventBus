@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Data;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace EventBus.Publish
@@ -84,6 +85,7 @@ namespace EventBus.Publish
             metaData.Contact(descriptor.Message.MetaData);
             message.MetaData = metaData.ToJson();
             await _publishedEventPersistenter.InsertAsync(message, dbConnection, dbTransaction);
+            await _messageQueueTransaction.PublishAsync(descriptor.Exchange, descriptor.RouteKey, Encoding.UTF8.GetBytes(descriptor.Message.GetTransferJson()));
         }
 
         public async Task RollbackAsync()
