@@ -1,7 +1,7 @@
 ﻿using EventBus.Core;
 using FeiniuBus;
 
-namespace EventBus.MySQL
+namespace EventBus.Publish
 {
     public class IdentityGenerator : IIdentityGenerator
     {

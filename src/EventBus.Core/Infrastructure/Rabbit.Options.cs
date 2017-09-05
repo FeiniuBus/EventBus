@@ -1,6 +1,6 @@
 ﻿using RabbitMQ.Client;
 
-namespace EventBus.Core
+namespace EventBus.Core.Infrastructure
 {
     public class RabbitOptions
     {
