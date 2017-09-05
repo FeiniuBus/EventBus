@@ -7,11 +7,7 @@ namespace EventBus.Core.Extensions
     {
         public static object GetTransferMessage(this IMessage message)
         {
-            return new
-            {
-                message.MetaData,
-                message.Content
-            };
+            return message.Content;
         }
 
         public static string GetTransferJson(this IMessage message)
