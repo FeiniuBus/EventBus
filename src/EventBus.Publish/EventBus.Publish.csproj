@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
+    <Version>0.0.1</Version>
+    <PackageProjectUrl>https://github.com/FeiniuBus/EventBus</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>
