@@ -48,12 +48,12 @@ namespace EventBus.Core.Internal
             return typeDeclarerTarget(typeDeclarer, memberFinder.Target(memberFinder, _instance));
         }
 
-        public IEnumerable<AnonymousMemberInfo> GetMembers()
+        public IEnumerable<AnonymousPropertyInfo> GetProperties()
         {
-            var memberinfos = _type.GetMembers().Select(member => new AnonymousMemberInfo
+            var memberinfos = _type.GetProperties().Select(member => new AnonymousPropertyInfo
             {
                 MemberName = member.Name,
-                DeclaringType = member.DeclaringType,
+                DeclaringType = member.PropertyType,
                 MemberType = member.MemberType
             });
             return memberinfos;

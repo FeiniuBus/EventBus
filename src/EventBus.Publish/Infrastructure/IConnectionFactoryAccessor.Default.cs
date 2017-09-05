@@ -1,7 +1,6 @@
-﻿using RabbitMQ.Client;
-using Microsoft.Extensions.Options;
-using EventBus.Core;
+﻿using EventBus.Core;
 using EventBus.Core.Infrastructure;
+using RabbitMQ.Client;
 
 namespace EventBus.Publish.Infrastructure
 {
@@ -10,9 +9,9 @@ namespace EventBus.Publish.Infrastructure
         RabbitOptions RabbitOptions;
         public IConnectionFactory ConnectionFactory { get; }
 
-        public DefaultConnectionFactoryAccessor(IOptions<RabbitOptions> optionsAcssesor)
+        public DefaultConnectionFactoryAccessor(RabbitOptions optionsAcssesor)
         {
-            RabbitOptions = optionsAcssesor.Value;
+            RabbitOptions = optionsAcssesor;
             ConnectionFactory = new ConnectionFactory()
             {
                 UserName = RabbitOptions.UserName,

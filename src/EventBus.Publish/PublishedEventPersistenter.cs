@@ -81,16 +81,16 @@ namespace EventBus.Publish
             sql.AppendLine(@")");
             sql.AppendLine(@"VALUES");
             sql.AppendLine(@"(");
-            sql.AppendLine(@"`@Id`,");
-            sql.AppendLine(@"`@MessageId`,");
-            sql.AppendLine(@"`@TransactId`,");
-            sql.AppendLine(@"`@MetaData`,");
-            sql.AppendLine(@"`@Content`,");
-            sql.AppendLine(@"`@Exchange`,");
-            sql.AppendLine(@"`@RouteKey`,");
-            sql.AppendLine(@"`@Type`,");
-            sql.AppendLine(@"`@State`,");
-            sql.AppendLine(@"`@CreationDate`");
+            sql.AppendLine(@"@Id,");
+            sql.AppendLine(@"@MessageId,");
+            sql.AppendLine(@"@TransactId,");
+            sql.AppendLine(@"@MetaData,");
+            sql.AppendLine(@"@Content,");
+            sql.AppendLine(@"@Exchange,");
+            sql.AppendLine(@"@RouteKey,");
+            sql.AppendLine(@"@Type,");
+            sql.AppendLine(@"@State,");
+            sql.AppendLine(@"@CreationDate");
             sql.AppendLine(@")");
             return sql.ToString();
         }

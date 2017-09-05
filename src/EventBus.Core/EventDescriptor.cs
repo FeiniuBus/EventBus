@@ -5,12 +5,12 @@ namespace EventBus.Core
 {
     public class EventDescriptor
     {
-        public EventDescriptor(string routeKey, IMessage message, string exchange = "default.exchange@feiniubus", object args = null)
+        public EventDescriptor(string routeKey, IMessage message, string exchange = null, object args = null)
         {
             RouteKey = routeKey;
             Message = message;
             ContentType = message.Content.GetType().FullName;
-            Exchange = exchange;
+            Exchange = exchange ?? "default.exchange@feiniubus";
             Arguments = args == null ? null : new AnonymousObject(args);
         }
 

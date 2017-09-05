@@ -7,12 +7,12 @@ namespace EventBus.Core
 {
     public static class IEventPublisherExtensions
     {
-        public static async Task PrepareAsync(this IEventPublisher eventPublisher, string routeKey, object content, object metaData, string exchange = null, object args = null)
+        public static async Task PrepareAsync(this IEventPublisher eventPublisher, string routeKey, object content, object metaData, string exchange = "default.exchange@feiniubus", object args = null)
         {
             var message = new DefaultMessage(content);
 
             var anonyObj = new AnonymousObject(metaData);
-            var anonyMembers = anonyObj.GetMembers().Where(member => member.MemberType == System.Reflection.MemberTypes.Property)
+            var anonyMembers = anonyObj.GetProperties().Where(member => member.MemberType == System.Reflection.MemberTypes.Property)
                 .Select(member=> new { MemberName = member.MemberName, Value = anonyObj.GetValue(member.DeclaringType, member.MemberName) });
 
             if (anonyMembers.Any())

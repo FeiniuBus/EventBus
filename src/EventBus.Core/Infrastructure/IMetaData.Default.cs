@@ -41,15 +41,20 @@ namespace EventBus.Core.Infrastructure
 
         public void Contact(IMetaData metaData)
         {
+            var changes = new Dictionary<string, string>();
             var iterator = GetEnumerator();
             while (iterator.MoveNext())
             {
                 string key = iterator.Current.Key;
-                if (_source.ContainsKey(iterator.Current.Key))
+                if (_source.ContainsKey(iterator.Current.Key) || changes.ContainsKey(iterator.Current.Key))
                 {
                     key = GetNewKey(iterator.Current.Key);
                 }
-                _source.Add(key, iterator.Current.Value);
+                changes.Add(key, iterator.Current.Value);
+            }
+            foreach(var change in changes)
+            {
+                _source.Add(change);
             }
         }
 

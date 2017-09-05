@@ -37,15 +37,12 @@ namespace EventBus.Publish.Sample.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]string value)
         {
-            using (var publisher = _eventPublisher.CreateScope())
-            {
                 using (var transaction = await _sampleDbContext.Database.BeginTransactionAsync())
                 {
-                    await publisher.PrepareAsync("test", new { value }, new { signature = "" });
+                    await _eventPublisher.PrepareAsync("test", new { value }, new { signature = "" });
                     transaction.Commit();
                 }
-                await publisher.ConfirmAsync();
-            }
+                await _eventPublisher.ConfirmAsync();
             return Ok();
         }
 

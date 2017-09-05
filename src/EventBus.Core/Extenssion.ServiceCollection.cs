@@ -1,4 +1,5 @@
 ﻿using EventBus.Core;
+using EventBus.Core.Infrastructure;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -9,6 +10,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var options = new EventBusOptions();
             configure(options);
+
+            serviceCollection.AddScoped<IMessageSerializer, DefaultMessageSerializer>();
 
             foreach(var extension in options.Extensions)
             {
