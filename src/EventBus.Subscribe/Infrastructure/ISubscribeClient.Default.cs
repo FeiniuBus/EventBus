@@ -34,9 +34,7 @@ namespace EventBus.Subscribe.Infrastructure
             EnsureConnection();
             Channel = Connection.CreateModel();
 
-            Channel.ExchangeDeclare(_exchange
-                , "topic"
-                , true);
+            Channel.ExchangeDeclare(_exchange, "topic", true);
 
             var args = new Dictionary<string, object>
             {
