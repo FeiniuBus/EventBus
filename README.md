@@ -30,13 +30,17 @@ services.AddEventBus(options =>
 using(var transaction = dbContext.Database.BeginTransaction)
 {
   //TODO:Businesses codes
+  
   //Publish Event
   await _eventPublisher.PrepareAsync(/*RouteKey*/, /*Content Object*/, /*MetaData Object*/);
+  
   //Commit transaction
   transaction.Commit();
+  
   //Confirm Published Event.The event message won't publish untill invoked **IEventPublisher.ConfirmAsync()**
   //And you can decide when the event message be confirmed all by your self.
   await _eventPublisher.ConfirmAsync();
+  
   //Or you can just rollback these messages when exception was thrown.
   await _eventPublisher.RollbackAsync();
 }
