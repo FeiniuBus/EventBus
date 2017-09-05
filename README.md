@@ -45,3 +45,11 @@ using(var transaction = dbContext.Database.BeginTransaction)
   ```
   Still on it
   ```
+
+### Step 3 : Consumer callback handler
+* Declare a callback handler class implemented `ISubscribeCallbackHandler`
+* Register callback handle in `StartUp.cs`
+```
+Still on it
+```
+
