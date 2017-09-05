@@ -3,6 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 using System.Reflection;
+using Microsoft.Extensions.Options;
+using System.Linq;
+using System.Text;
 
 namespace EventBus.Subscribe.Internal
 {
@@ -10,6 +13,7 @@ namespace EventBus.Subscribe.Internal
     {
         private readonly IServiceScope _serviceScope;
         private readonly IServiceProvider _serviceProvider;
+        private readonly SubscribeOptions _subscribeOptions;
 
         public SubscribeContext Context { get; }
 
@@ -18,10 +22,11 @@ namespace EventBus.Subscribe.Internal
         {
             _serviceScope = serviceProvider.CreateScope();
             _serviceProvider = _serviceScope.ServiceProvider;
+            _subscribeOptions = _serviceProvider.GetRequiredService<IOptions<SubscribeOptions>>().Value;
             Context = context;
         }
 
-        public Task InvokeAsync()
+        public Task<bool> InvokeAsync()
         {
             var subscribeInfo = GetSubscribe();
             var handler = GetHandler(subscribeInfo);
@@ -29,36 +34,29 @@ namespace EventBus.Subscribe.Internal
             return Call(handler, message);
         }
 
-        private Task Call(object handler, object message)
+        private Task<bool> Call(object handler, object message)
         {
-            var method = handler.GetType().GetTypeInfo().GetMethod(nameof(ISubscribeHandler<object>.HandleAsync));
-            var task = method.Invoke(handler, new[] { message }) as Task;
+            var method = handler.GetType().GetTypeInfo().GetMethod(nameof(ISubscribeHandler.HandleAsync));
+            var task = method.Invoke(handler, new[] { message }) as Task<bool>;
             return task;
         }
 
         private object GetHandler(SubscribeInfo subscribeInfo)
         {
-            return _serviceProvider.GetService(subscribeInfo.BaseType);
+            return _serviceProvider.GetService(subscribeInfo.CallbackType);
         }
 
         private SubscribeInfo GetSubscribe()
         {
-            var cache = _serviceProvider.GetService<SubscribeInfoCache>();
-            var subscribeInfo = cache.GetSubscribeInfo(Context.Name, Context.Queue);
-            return subscribeInfo;
+            return _subscribeOptions.SubscribeInfos.FirstOrDefault(x => x.Exchange == Context.Exchange
+                && x.Topic == Context.Topic
+                && x.Group == Context.Queue);
         }
 
-        private object GetMessage(SubscribeInfo subscribeInfo)
+        private string GetMessage(SubscribeInfo subscribeInfo)
         {
-            var deserilizer = _serviceProvider.GetService<IMessageDeSerializer>();
-            var message = deserilizer.Deserialize(Context.Content, GetMessageType(subscribeInfo));
+            var message = Encoding.UTF8.GetString(Context.Content);
             return message;
-        }
-
-        private Type GetMessageType(SubscribeInfo subscribeInfo)
-        {
-            var messageType = subscribeInfo.HandlerType.GenericTypeArguments[0];
-            return messageType;
         }
 
         public void Dispose()

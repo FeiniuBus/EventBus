@@ -3,106 +3,101 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EventBus.Subscribe.Infrastructure
 {
     public class DefaultSubscribeClient : ISubscribeClient
     {
-        private readonly IList<IDisposable> _disposables;
-        private readonly IList<IModel> _channels;
+        private IConnection Connection;
+        private IModel Channel;
         private readonly IConnectionFactoryAccessor _connectionFactoryAccessor;
-        private readonly SubscribeInfoCache _cache;
+        private readonly RabbitOptions _rabbitOptions;
+        private readonly string _group;
+        private readonly string _exchange;
 
         public Action<SubscribeContext> OnReceive { get; set; }
 
         public DefaultSubscribeClient(IConnectionFactoryAccessor connectionFactoryAccessor
-            , SubscribeInfoCache cache)
+            , RabbitOptions rabbitOptions
+            , string group
+            , string exchange)
         {
-            _disposables = new List<IDisposable>();
-            _channels = new List<IModel>();
             _connectionFactoryAccessor = connectionFactoryAccessor;
-            _cache = cache;
-        }
-
-        public void Start()
-        {
-            EnsureChannel();
+            _rabbitOptions = rabbitOptions;
+            _group = group;
+            _exchange = exchange;
         }
 
         private void EnsureChannel()
         {
-            if (_channels.Any()) return;
+            if (Channel != null) return;
+            EnsureConnection();
+            Channel = Connection.CreateModel();
+
+            Channel.ExchangeDeclare(_exchange
+                , "topic"
+                , true);
+
+            var args = new Dictionary<string, object>
+            {
+                ["x-message-ttl"] = _rabbitOptions.QueueMessageExpires
+            };
+
+            Channel.QueueDeclare(
+                _group
+                , true
+                , false
+                , false
+                , args);
+        }
+
+        private void EnsureConnection()
+        {
+            if (Connection != null) return;
 
             var factory = _connectionFactoryAccessor.ConnectionFactory;
-            var connection = factory.CreateConnection();
-            connection.AutoClose = true;
+            Connection = factory.CreateConnection();
+        }
 
-            foreach(var nameGroupe in _cache.Entries)
-            {   
-                foreach(var groupGroup in nameGroupe.Value)
-                {
-                    var channel = connection.CreateModel();
-                    _channels.Add(channel);
-                    _disposables.Add(channel);
+        public void Subscribe(string[] topics)
+        {
+            if (topics == null) throw new ArgumentNullException(nameof(topics));
 
-                    channel.ExchangeDeclare(
-                        nameGroupe.Key
-                        , "topic"
-                        , true
-                        , false
-                        , null);
+            EnsureChannel();
 
-                    channel.QueueDeclare(
-                        groupGroup.Key
-                        , true
-                        , false
-                        , false
-                        , null);
-
-                    channel.QueueBind(groupGroup.Key, nameGroupe.Key, groupGroup.Value.Key, null);
-
-                    EnsureConsumer(channel, groupGroup.Key);
-                }
+            foreach (var topic in topics)
+            {
+                Channel.QueueBind(_group, _exchange, topic);
             }
         }
 
-        private void EnsureConsumer(IModel channel, string queue)
+        public void Listening()
         {
-            var consumer = new EventingBasicConsumer(channel);
-            consumer.Received += (object sender, BasicDeliverEventArgs e) =>
-            {
-                var context = new SubscribeContext
-                {
-                    Name = e.Exchange,
-                    Key = e.RoutingKey,
-                    Queue = queue,
-                    DeliveryTag = e.DeliveryTag,
-                    Channel = channel
-                };
-                
-                OnReceive?.Invoke(context);
-            };
-
-            channel.BasicConsume(queue, false, consumer);
+            EnsureChannel();
+            var consumer = new EventingBasicConsumer(Channel);
+            consumer.Received += OnConsumerReceived;
+            Channel.BasicConsume(_group, false, consumer);
         }
 
         public void Dispose()
         {
-            foreach (var disposable in _disposables)
+            Channel?.Dispose();
+            Connection?.Dispose();
+            Connection?.Close();
+        }
+
+        public void OnConsumerReceived(object sender, BasicDeliverEventArgs e)
+        {
+            var context = new SubscribeContext
             {
-                disposable.Dispose();
-            }
-        }
-
-        public void Ack(SubscribeContext context)
-        {
-            context.Channel.BasicAck(context.DeliveryTag, false);
-        }
-
-        public void Reject(SubscribeContext context)
-        {
-            context.Channel.BasicReject(context.DeliveryTag, true);
+                Exchange = _exchange,
+                Topic = e.RoutingKey,
+                Queue = _group,
+                DeliveryTag = e.DeliveryTag,
+                Channel = Channel,
+                Content = e.Body
+            };
+            OnReceive?.Invoke(context);
         }
     }
 }
