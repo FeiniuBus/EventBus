@@ -9,7 +9,10 @@ namespace EventBus.Publish
         Task PublishAsync<MessageT>(MessageT message) where MessageT : class;
         Task PublishAsync<MessageT>(MessageT message, IDictionary<string, object> args) where MessageT : class;
 <<<<<<< HEAD
+<<<<<<< HEAD
    
+=======
+>>>>>>> parent of 32b76d2... add tx
 =======
 >>>>>>> parent of 32b76d2... add tx
     }

@@ -16,8 +16,11 @@ namespace EventBus.Core
 
         public string DefaultExchangeName => "default.exchange@feiniubus";
 <<<<<<< HEAD:src/EventBus.Core/RabbitOptions.cs
+<<<<<<< HEAD:src/EventBus.Core/RabbitOptions.cs
 
         public int QueueMessageExpires { get; set; } = 864000000;
+=======
+>>>>>>> parent of 32b76d2... add tx:src/EventBus.Core/RabbitOptions.cs
 =======
 >>>>>>> parent of 32b76d2... add tx:src/EventBus.Core/RabbitOptions.cs
     }
