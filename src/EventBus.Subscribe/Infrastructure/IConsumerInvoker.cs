@@ -5,6 +5,6 @@ namespace EventBus.Subscribe.Infrastructure
 {
     public interface IConsumerInvoker: IDisposable
     {
-        Task<bool> InvokeAsync();
+        Task InvokeAsync();
     }
 }
