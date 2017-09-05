@@ -4,7 +4,7 @@
     <TargetFramework>netstandard1.6</TargetFramework>
     <PackageProjectUrl>https://github.com/FeiniuBus/EventBus</PackageProjectUrl>
     <Version>0.0.1</Version>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
