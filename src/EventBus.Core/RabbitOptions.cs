@@ -15,5 +15,7 @@ namespace EventBus.Core
         public int Port { get; set; } = AmqpTcpEndpoint.UseDefaultPort;
 
         public string DefaultExchangeName => "default.exchange@feiniubus";
+
+        public int QueueMessageExpires { get; set; } = 864000000;
     }
 }

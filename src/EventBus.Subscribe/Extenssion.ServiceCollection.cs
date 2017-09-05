@@ -14,23 +14,20 @@ namespace EventBus.Subscribe
             services.AddSingleton<IBootstrapper, DefaultBootstrapper>();
             services.AddScoped<ISubscribeConsumer, DefaultSubscribeConsumer>();
             services.AddTransient<IMessageDeSerializer, DefaultMessageDeSerializer>();
-            services.AddSingleton<SubscribeInfoCache>();
 
-            services.ConfiguraClients();
+            services.ConfigurationSubscribeCallbacks();
 
             return services;
         }
 
-        private static IServiceCollection ConfiguraClients(this IServiceCollection services)
+        public static IServiceCollection ConfigurationSubscribeCallbacks(this IServiceCollection services)
         {
             var provider = services.BuildServiceProvider();
             var options = provider.GetRequiredService<IOptions<SubscribeOptions>>().Value;
-
-            for(var i = 0; i < options.ConsumerClientCount; ++i)
+            foreach(var info in options.SubscribeInfos)
             {
-                services.AddScoped<ISubscribeClient, DefaultSubscribeClient>();
+                services.AddScoped(info.CallbackType, info.CallbackType);
             }
-
             return services;
         }
     }

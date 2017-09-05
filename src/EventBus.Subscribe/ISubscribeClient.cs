@@ -6,8 +6,7 @@ namespace EventBus.Subscribe
     {
         Action<SubscribeContext> OnReceive { get; set; }
 
-        void Start();
-        void Ack(SubscribeContext context);
-        void Reject(SubscribeContext context);
+        void Subscribe(string[] topics);
+        void Listening();
     }
 }

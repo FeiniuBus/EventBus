@@ -4,16 +4,12 @@ namespace EventBus.Subscribe.Infrastructure
 {
     public class SubscribeInfo
     {
-        public Type HandlerType { get; set; }
+        public string Exchange { get; set; }
 
-        public Type InnerType { get; set; }
-
-        public Type BaseType { get; set; }
-
-        public string Name { get; set; }
+        public string Topic { get; set; }
 
         public string Group { get; set; }
 
-        public string Key { get; set; }
+        public Type CallbackType { get; set; }
     }
 }
