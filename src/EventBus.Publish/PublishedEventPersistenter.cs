@@ -2,9 +2,8 @@
 using EventBus.Core;
 using EventBus.Core.Infrastructure;
 using EventBus.Core.State;
-using EventBus.MySQL.Internal;
+using EventBus.Publish.Internal;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -14,38 +13,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EventBus.MySQL
+namespace EventBus.Publish
 {
-    public class MessagePersistenter<TContent> : IMessagePersistenter<TContent>
+    public class PublishedEventPersistenter : IPublishedEventPersistenter
     {
         private readonly IIdentityGenerator _identityGenerator;
-        private readonly IServiceProvider _serviceProvider;
-        private readonly EventBusEFOptions _eventBusEFOptions;
-        private readonly DbContext _dbContext;
         private readonly ILogger _logger;
+        private readonly IServiceProvider _serviceProvider;
 
-        internal MessagePersistenter(long transactionID, IIdentityGenerator identityGenerator, EventBusEFOptions efOptions, ILogger<MessagePersistenter<TContent>> _logger, IServiceProvider serviceProvider)
+        public PublishedEventPersistenter(IIdentityGenerator identityGenerator,IServiceProvider serviceProvider, ILogger<PublishedEventPersistenter> logger)
         {
-            TransactionID = transactionID;
-            _eventBusEFOptions = efOptions;
-            _serviceProvider = serviceProvider;
             _identityGenerator = identityGenerator;
-            _dbContext = _serviceProvider.GetRequiredService(_eventBusEFOptions.DbContextType) as DbContext;
-        }
-        
-        public long TransactionID { get; }
-
-
-        public async Task ChangeStateAsync(long messageId, long transactId, MessageState messageState)
-        {
-            var connection = _dbContext.Database.GetDbConnection();
-            var transaction = GetDbTransaction();
-            await ChangeStateAsync(messageId, transactId, messageState, connection, transaction);
+            _serviceProvider = serviceProvider;
+            _logger = logger;
         }
 
         public async Task ChangeStateAsync(long messageId, long transactId, MessageState messageState, IDbConnection dbConnection, IDbTransaction dbTransaction)
         {
-            var result = await dbConnection.QueryFirstOrDefaultAsync<ChangeStateMessage<TContent>>(BuildChangeStateSql(),
+            var result = await dbConnection.QueryFirstOrDefaultAsync<ChangeStateMessage>(BuildChangeStateSql(),
                 new
                 {
                     MessageId = messageId,
@@ -53,16 +38,16 @@ namespace EventBus.MySQL
                 }, dbTransaction);
 
             var args = new StateChangedArgs(result.State, messageState);
-            var contentObj = result.GetContent();
+            var contentType = result.GetContentType();
             var metaDataObj = result.GetMetaData();
-            var stateChangeHandlers = _serviceProvider.GetServices<IStateChangeHandler>().Where(handler => handler.CanHandle(typeof(TContent), contentObj, metaDataObj, args));
+            var stateChangeHandlers = _serviceProvider.GetServices<IStateChangeHandler>().Where(handler => handler.CanHandle(contentType, result.Content, metaDataObj, args));
             if (stateChangeHandlers.Any())
             {
                 foreach(var handler in stateChangeHandlers)
                 {
                     try
                     {
-                        await handler.HandleAsync(typeof(TContent), contentObj, metaDataObj, args);
+                        await handler.HandleAsync(contentType, result.Content, metaDataObj, args);
                     }
                     catch(Exception ex)
                     {
@@ -72,49 +57,11 @@ namespace EventBus.MySQL
             }
         }
 
-        public async Task<IMessage<TContent>> InsertAsync(TContent content, MessageType messageType, IMetaData metaData = null)
+        public async Task InsertAsync(object message, IDbConnection dbConnection, IDbTransaction dbTransaction)
         {
-            var connection = _dbContext.Database.GetDbConnection();
-            var transaction = GetDbTransaction();
-            return await InsertAsync(content, messageType, connection, transaction, metaData);            
-        }
-
-        public async Task<IMessage<TContent>> InsertAsync(TContent content, MessageType messageType, IDbConnection dbConnection, IDbTransaction dbTransaction, IMetaData metaData = null)
-        {
-            var message = new DefaultMessage<TContent>(content);
-            if (metaData != null)
-            {
-                message.MetaData.Unoin(metaData);
-            }
-            var metaJson = JsonConvert.SerializeObject(message.MetaData);
-            var contentJson = JsonConvert.SerializeObject(message.Content);
-
-            var affectedRows = await dbConnection.ExecuteAsync(BuildInsertSql(),
-                new Internal.Model.Message
-                {
-                    Id = _identityGenerator.NextIdentity(),
-                    MessageId = _identityGenerator.NextIdentity(),
-                    TransactId = TransactionID,
-                    MetaData = metaJson,
-                    Content = contentJson,
-                    Type = (short)messageType,
-                    State = (short)message.State,
-                    CreationDate = message.CreateTime
-                }, dbTransaction);
+            var affectedRows = await dbConnection.ExecuteAsync(BuildInsertSql(), message, dbTransaction);
 
             if (affectedRows == 0) throw new AffectedRowsCountUnExpectedException(1, affectedRows);
-            return message;
-        }
-
-        private IDbTransaction GetDbTransaction()
-        {
-            var transaction = _dbContext?.Database?.CurrentTransaction;
-            if (transaction == null)
-            {
-                _logger.MessagePersitenterNotUsingTransaction(TransactionID);
-                return null;
-            }
-            return transaction.GetDbTransaction();
         }
 
         private string BuildInsertSql()
@@ -126,6 +73,8 @@ namespace EventBus.MySQL
             sql.AppendLine(@"`TransactId`,");
             sql.AppendLine(@"`MetaData`,");
             sql.AppendLine(@"`Content`,");
+            sql.AppendLine(@"`Exchange`,");
+            sql.AppendLine(@"`RouteKey`,");
             sql.AppendLine(@"`Type`,");
             sql.AppendLine(@"`State`,");
             sql.AppendLine(@"`CreationDate`");
@@ -137,6 +86,8 @@ namespace EventBus.MySQL
             sql.AppendLine(@"`@TransactId`,");
             sql.AppendLine(@"`@MetaData`,");
             sql.AppendLine(@"`@Content`,");
+            sql.AppendLine(@"`@Exchange`,");
+            sql.AppendLine(@"`@RouteKey`,");
             sql.AppendLine(@"`@Type`,");
             sql.AppendLine(@"`@State`,");
             sql.AppendLine(@"`@CreationDate`");
@@ -166,17 +117,22 @@ namespace EventBus.MySQL
         
     }
 
-    internal class ChangeStateMessage<TContent>
+    internal class ChangeStateMessage
     {
         public MessageState State { get; set; }
         public string MetaData { get; set; }
         public string Content { get; set; }
-
-        public TContent GetContent() => JsonConvert.DeserializeObject<TContent>(Content);
+        public string ContentType { get; set; }
+        
         public IMetaData GetMetaData()
         {
             if (string.IsNullOrEmpty(MetaData)) return null;
             return JsonConvert.DeserializeObject<MetaData>(MetaData);
+        }
+
+        public Type GetContentType()
+        {
+            return Type.GetType(ContentType);
         }
     }
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace EventBus.MySQL.Internal
+namespace EventBus.Publish.Internal
 {
     public static class LoggerExtensions
     {

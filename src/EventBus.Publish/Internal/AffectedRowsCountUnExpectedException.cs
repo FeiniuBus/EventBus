@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EventBus.MySQL.Internal
+namespace EventBus.Publish.Internal
 {
     public class AffectedRowsCountUnExpectedException : Exception
     {

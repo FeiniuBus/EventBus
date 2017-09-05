@@ -3,10 +3,10 @@ using System;
 
 namespace EventBus.Core.Infrastructure
 {
-    public interface IMessage< TContent> 
+    public interface IMessage
     {
         IMetaData MetaData { get; }
-        TContent Content { get; }
+        object Content { get; }
         DateTime CreateTime { get; }
         MessageState State { get; }
     }

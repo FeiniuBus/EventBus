@@ -1,7 +1,9 @@
 ﻿using RabbitMQ.Client;
 using Microsoft.Extensions.Options;
+using EventBus.Core;
+using EventBus.Core.Infrastructure;
 
-namespace EventBus.Core.Infrastructure
+namespace EventBus.Publish.Infrastructure
 {
     public class DefaultConnectionFactoryAccessor : IConnectionFactoryAccessor
     {
