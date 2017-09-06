@@ -20,6 +20,10 @@ services.AddEventBus(options =>
   });
  });
  ```
+ *** Add following codes in `Configure` scope of `StartUp.cs` ***
+ ```csharp
+ app.UseEventBus();
+ ```
 
 ### Step 2 : Publish Event
 * Inject `IEventPublisher` in constructor like `.ctor(IEventPublisher eventPublisher)`
