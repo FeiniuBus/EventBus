@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using EventBus.Core;
+using EventBus.Subscribe;
 
 namespace EventBus.Publish.Sample
 {
@@ -44,6 +46,17 @@ namespace EventBus.Publish.Sample
                     rabbit.UserName = "andrew";
                     rabbit.Password = "kge2001";
                 });
+
+                options.UseFailureHandle(failure =>
+                {
+                });
+            });
+
+            services.AddSub(options =>
+            {
+                options.ConsumerClientCount = 1;
+                options.DefaultGroup = "eventbus.testgroup";
+
             });
         }
 
@@ -52,7 +65,7 @@ namespace EventBus.Publish.Sample
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
-
+            app.UseEventBus();
             app.UseMvc();
         }
     }

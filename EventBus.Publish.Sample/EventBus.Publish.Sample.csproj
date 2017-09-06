@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\src\EventBus.Core\EventBus.Core.csproj" />
     <ProjectReference Include="..\src\EventBus.Publish\EventBus.Publish.csproj" />
+    <ProjectReference Include="..\src\EventBus.Subscribe\EventBus.Subscribe.csproj" />
   </ItemGroup>
 
 </Project>

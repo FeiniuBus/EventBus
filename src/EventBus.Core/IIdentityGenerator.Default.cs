@@ -1,5 +1,4 @@
-﻿using EventBus.Core;
-using FeiniuBus;
+﻿using FeiniuBus;
 
 namespace EventBus.Core
 {
