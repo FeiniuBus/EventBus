@@ -1,6 +1,7 @@
 ﻿using EventBus.Core;
 using EventBus.Core.Infrastructure;
 using EventBus.Subscribe.Infrastructure;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -15,8 +16,9 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.AddScoped<IMessageSerializer, DefaultMessageSerializer>();
             serviceCollection.AddScoped<IConsumer, FailureConsumer>();
             serviceCollection.AddSingleton<IBootstrapper, DefaultBootstrapper>();
+            serviceCollection.TryAddTransient<IMessageDecoder, DefaultMessageDecoder>();
 
-            foreach(var extension in options.Extensions)
+            foreach (var extension in options.Extensions)
             {
                 extension.AddServices(serviceCollection);
             }

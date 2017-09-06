@@ -24,9 +24,9 @@ namespace EventBus.Core
             Channel.BasicAck(DeliveryTag, false);
         }
 
-        public void Reject()
+        public void Reject(bool requeue = false)
         {
-            Channel.BasicReject(DeliveryTag, false);
+            Channel.BasicReject(DeliveryTag, requeue);
         }
     }
 }

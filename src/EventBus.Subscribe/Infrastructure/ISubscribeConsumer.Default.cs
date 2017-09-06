@@ -14,13 +14,19 @@ namespace EventBus.Subscribe.Infrastructure
         private readonly IList<IDisposable> _disposables;
         private readonly IServiceProvider _serviceProvider;
         private readonly SubscribeOptions _subscribeOptions;
+        private readonly IReceivedEventPersistenter _receivedEventPersistenter;
+        private readonly IMessageDecoder _messageDecoder;
 
         public DefaultSubscribeConsumer(IServiceProvider serviceProvider
+            , IReceivedEventPersistenter receivedEventPersistenter
+            , IMessageDecoder messageDecoder
             , IOptions<SubscribeOptions> subscribeOptionsAccessor)
         {
             _disposables = new List<IDisposable>();
             _serviceProvider = serviceProvider;
             _subscribeOptions = subscribeOptionsAccessor.Value;
+            _receivedEventPersistenter = receivedEventPersistenter;
+            _messageDecoder = messageDecoder;
         }
 
         public void Start()
@@ -71,11 +77,32 @@ namespace EventBus.Subscribe.Infrastructure
         {
             client.OnReceive = (MessageContext context) =>
             {
+                var msg = _messageDecoder.Decode(context);
+
+                try
+                {
+                    _receivedEventPersistenter.InsertAsync(msg);
+                }
+                catch
+                {
+                    context.Reject(true);
+                    return;
+                }
+
                 bool result = false;
                 try
                 {
                     var invoker = new DefaultConsumerInvoker(_serviceProvider, context);
                     result = invoker.InvokeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
+
+                    try
+                    {
+                        _receivedEventPersistenter.ChangeStateAsync(msg.MessageId, msg.TransactId, msg.Group, Core.State.MessageState.Succeeded);
+                    }
+                    catch
+                    {
+
+                    }
                 }
                 finally
                 {
@@ -86,6 +113,14 @@ namespace EventBus.Subscribe.Infrastructure
                     else
                     {
                         context.Reject();
+                        try
+                        {
+                            _receivedEventPersistenter.ChangeStateAsync(msg.MessageId, msg.TransactId, msg.Group, Core.State.MessageState.Failed);
+                        }
+                        catch
+                        {
+
+                        }
                     }
                 }
             };
