@@ -68,11 +68,31 @@ using(var transaction = dbContext.Database.BeginTransaction)
   await _eventPublisher.RollbackAsync();
   ```
   
-
-### Step 3 : Consumer callback handler
+### step 3 : Dead letter callback handler
+ * Declare a callback handler class implemented `IFailureHandler`
+ * Register callback handle in `AddEventBus` scope
+ ```
+ options.UseFailureHandle(failure =>
+ {
+  failure.RegisterFailureCallback(/*RouteKey*/, /*Type of your deadletter callback handler*/);
+ });
+ ```
+ 
+ 
+ 
+### Step 4 : Consumer callback handler
 * Declare a callback handler class implemented `ISubscribeCallbackHandler`
 * Register callback handle in `StartUp.cs`
 ```
-Still on it
+services.AddSub(options =>
+{
+  options.ConsumerClientCount = 1;
+  options.DefaultGroup = "eventbus.testgroup";
+  options.RegisterCallback(/*RouteKey*/, /*Type of your callback handler*/);
+ });
+ ```
+ 
+ 
+
 ```
 
