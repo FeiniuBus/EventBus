@@ -14,13 +14,16 @@ namespace EventBus.Subscribe.Infrastructure
         private readonly IList<IDisposable> _disposables;
         private readonly IServiceProvider _serviceProvider;
         private readonly SubscribeOptions _subscribeOptions;
+        private readonly IReceivedEventPersistenter _receivedEventPersistenter;
 
         public DefaultSubscribeConsumer(IServiceProvider serviceProvider
+            , IReceivedEventPersistenter receivedEventPersistenter
             , IOptions<SubscribeOptions> subscribeOptionsAccessor)
         {
             _disposables = new List<IDisposable>();
             _serviceProvider = serviceProvider;
             _subscribeOptions = subscribeOptionsAccessor.Value;
+            _receivedEventPersistenter = receivedEventPersistenter;
         }
 
         public void Start()
@@ -71,6 +74,16 @@ namespace EventBus.Subscribe.Infrastructure
         {
             client.OnReceive = (MessageContext context) =>
             {
+                try
+                {
+                    _receivedEventPersistenter.InsertAsync(context.Content);
+                }
+                catch
+                {
+                    context.Reject(true);
+                    return;
+                }
+
                 bool result = false;
                 try
                 {
