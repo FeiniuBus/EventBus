@@ -1,10 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFrameworks>netstandard1.6;netstandard2.0;</TargetFrameworks>
+    <Version>1.0.0-rc2</Version>
     <PackageProjectUrl>https://github.com/FeiniuBus/EventBus</PackageProjectUrl>
-    <Version>0.0.1</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageIconUrl>https://s3.cn-north-1.amazonaws.com.cn/nuget-icons/icon175x175.jpeg</PackageIconUrl>
+    <RepositoryUrl>https://github.com/FeiniuBus/EventBus.git</RepositoryUrl>
+    <RepositoryType>https://raw.githubusercontent.com/FeiniuBus/EventBus/master/LICENSE</RepositoryType>
+    <Description>Feiniubus EventBus libary</Description>
   </PropertyGroup>
 
   <ItemGroup>

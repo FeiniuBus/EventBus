@@ -1,4 +1,5 @@
 ﻿using Microsoft.CSharp.RuntimeBinder;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +58,12 @@ namespace EventBus.Core.Internal
                 MemberType = member.MemberType
             });
             return memberinfos;
+        }
+
+        public string GetJsonDefinition()
+        {
+            var defines = GetProperties().Select(x => new KeyValuePair<string, string>(x.MemberName, x.DeclaringType.Name));
+            return JsonConvert.SerializeObject(defines);
         }
     }
 }
