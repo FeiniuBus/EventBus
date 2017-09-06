@@ -61,7 +61,7 @@ using(var transaction = dbContext.Database.BeginTransaction)
   dbConnection.Close();
   
   //Confirm Published Event.The event message won't publish untill invoked **IEventPublisher.ConfirmAsync()**
-  //And you can decide when the event message be confirmed all by your self.
+  //And you can decide when the event message should be confirmed all by your self.
   await _eventPublisher.ConfirmAsync();
   
   //Or you can just rollback these messages when exception was thrown.
