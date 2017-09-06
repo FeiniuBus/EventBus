@@ -41,19 +41,13 @@ namespace EventBus.Core.Infrastructure
 
         public void Contact(IMetaData metaData)
         {
-            var changes = new Dictionary<string, string>();
-            var iterator = GetEnumerator();
-            while (iterator.MoveNext())
+            foreach(var change in metaData.GetDictionary())
             {
-                string key = iterator.Current.Key;
-                if (_source.ContainsKey(iterator.Current.Key) || changes.ContainsKey(iterator.Current.Key))
+                if (_source.ContainsKey(change.Key))
                 {
-                    key = GetNewKey(iterator.Current.Key);
+                    var newKey = GetNewKey(change.Key);
+                    _source.Add(newKey, change.Value);
                 }
-                changes.Add(key, iterator.Current.Value);
-            }
-            foreach(var change in changes)
-            {
                 _source.Add(change);
             }
         }
