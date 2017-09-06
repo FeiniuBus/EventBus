@@ -46,6 +46,7 @@ using(var transaction = dbContext.Database.BeginTransaction)
 }
 ```
   * ***using Ado.NET***
+  
   ```
   IDbConnection dbConnection; /*Open your database connection.*/
   IDbTransaction dbTransaction = dbConnection.BeginTransaction();
@@ -65,7 +66,8 @@ using(var transaction = dbContext.Database.BeginTransaction)
   
   //Or you can just rollback these messages when exception was thrown.
   await _eventPublisher.RollbackAsync();
-  ```
+  ```
+  
 
 ### Step 3 : Consumer callback handler
 * Declare a callback handler class implemented `ISubscribeCallbackHandler`
