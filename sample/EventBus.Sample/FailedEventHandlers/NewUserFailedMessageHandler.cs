@@ -1,6 +1,4 @@
 ﻿using System.Threading.Tasks;
-using EventBus.Sample.Events;
-using EventBus.Publish;
 using EventBus.Core;
 
 namespace EventBus.Sample.FailedEventHandlers
