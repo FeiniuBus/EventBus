@@ -9,7 +9,7 @@ namespace EventBus.Sample.EventHandlers
         public Task<bool> HandleAsync(string message)
         {
             if (message == "123456")
-                return Task.FromResult(true);
+                return Task.FromResult(false);
             return Task.FromResult(true);
         }
     }

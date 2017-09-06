@@ -1,6 +1,4 @@
-﻿using EventBus.Core;
-using EventBus.Publish;
-using EventBus.Sample.EventHandlers;
+﻿using EventBus.Sample.EventHandlers;
 using EventBus.Subscribe;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -8,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using EventBus.Sample.FailedEventHandlers;
 
 namespace EventBus.Sample
 {
@@ -42,6 +41,11 @@ namespace EventBus.Sample
                 {
                     rabbit.HostName = "localhost";
                 });
+
+                options.UseFailureHandle(failure =>
+                {
+                    failure.RegisterFailureCallback("eventbus.testtopic", typeof(NewUserFailedMessageHandler));
+                });
             });
 
 
@@ -50,7 +54,7 @@ namespace EventBus.Sample
                 options.ConsumerClientCount = 1;
                 options.DefaultGroup = "eventbus.testgroup";
 
-                options.RegisterExternalCallback("eventbus.testtopic", "eventbus.testgroup", typeof(NewUserEventHandler));
+                options.RegisterExternalCallback("eventbus.testtopic", typeof(NewUserEventHandler));
             });
         }
 

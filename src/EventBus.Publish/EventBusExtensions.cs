@@ -1,4 +1,5 @@
 ﻿using EventBus.Core;
+using EventBus.Core.Infrastructure;
 using EventBus.Publish;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -36,6 +37,13 @@ namespace Microsoft.Extensions.DependencyInjection
         public static EventBusOptions UseRabbitMQ(this EventBusOptions eventBusOptions, Action<EventBus.Core.Infrastructure.RabbitOptions> configure)
         {
             var extension = new RabbitExtension(configure);
+            eventBusOptions.RegisterExtension(extension);
+            return eventBusOptions;
+        }
+
+        public static EventBusOptions UseFailureHandle(this EventBusOptions eventBusOptions, Action<FailureHandleOptions> configure)
+        {
+            var extension = new FailureExtenssion(configure);
             eventBusOptions.RegisterExtension(extension);
             return eventBusOptions;
         }
