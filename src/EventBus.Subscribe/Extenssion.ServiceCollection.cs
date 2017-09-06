@@ -15,6 +15,7 @@ namespace EventBus.Subscribe
             //services.AddSingleton<IBootstrapper, DefaultBootstrapper>();
             services.AddScoped<IConsumer, DefaultSubscribeConsumer>();
             services.AddTransient<IMessageDeSerializer, DefaultMessageDeSerializer>();
+            services.AddScoped<IReceivedEventPersistenter, ReceivedEventPersistenter>();
 
             services.ConfigurationSubscribeCallbacks();
 
