@@ -47,8 +47,25 @@ using(var transaction = dbContext.Database.BeginTransaction)
 ```
   * ***using Ado.NET***
   ```
-  Still on it
-  ```
+  IDbConnection dbConnection; /*Open your database connection.*/
+  IDbTransaction dbTransaction = dbConnection.BeginTransaction();
+  
+  //TODO:Businesses codes
+  
+  //Publish Event
+  await _eventPublisher.PrepareAsync(/*RouteKey*/, /*Content Object*/, /*MetaData Object*/,dbConnection,dbTransaction);
+  
+  //Commit transaction
+  dbTransaction.Commit();
+  dbConnection.Close();
+  
+  //Confirm Published Event.The event message won't publish untill invoked **IEventPublisher.ConfirmAsync()**
+  //And you can decide when the event message be confirmed all by your self.
+  await _eventPublisher.ConfirmAsync();
+  
+  //Or you can just rollback these messages when exception was thrown.
+  await _eventPublisher.RollbackAsync();
+  ```
 
 ### Step 3 : Consumer callback handler
 * Declare a callback handler class implemented `ISubscribeCallbackHandler`
