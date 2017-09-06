@@ -2,7 +2,6 @@
 using EventBus.Core;
 using EventBus.Core.Infrastructure;
 using EventBus.Core.State;
-using EventBus.Publish.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,13 +16,16 @@ namespace EventBus.Publish
 {
     public class PublishedEventPersistenter : IPublishedEventPersistenter
     {
+        private const string TableName = "eventbus.publishedmessages";
+        private readonly EventBusMySQLOptions _eventBusMySQLOptions;
         private readonly IIdentityGenerator _identityGenerator;
         private readonly ILogger _logger;
         private readonly IServiceProvider _serviceProvider;
 
-        public PublishedEventPersistenter(IIdentityGenerator identityGenerator,IServiceProvider serviceProvider, ILogger<PublishedEventPersistenter> logger)
+        public PublishedEventPersistenter(IIdentityGenerator identityGenerator, EventBusMySQLOptions eventBusMySQLOptions, IServiceProvider serviceProvider, ILogger<PublishedEventPersistenter> logger)
         {
             _identityGenerator = identityGenerator;
+            _eventBusMySQLOptions = eventBusMySQLOptions;
             _serviceProvider = serviceProvider;
             _logger = logger;
         }
@@ -33,21 +35,23 @@ namespace EventBus.Publish
             var result = await dbConnection.QueryFirstOrDefaultAsync<ChangeStateMessage>(BuildChangeStateSql(),
                 new
                 {
+                    State = (short)messageState,
                     MessageId = messageId,
                     TransactId = transactId
                 }, dbTransaction);
 
+            if (result == null) throw new AffectedRowsCountUnExpectedException(1, 0);
+
             var args = new StateChangedArgs(result.State, messageState);
-            var contentType = result.GetContentType();
             var metaDataObj = result.GetMetaData();
-            var stateChangeHandlers = _serviceProvider.GetServices<IStateChangeHandler>().Where(handler => handler.CanHandle(contentType, result.Content, metaDataObj, args));
+            var stateChangeHandlers = _serviceProvider.GetServices<IStateChangeHandler>().Where(handler => handler.CanHandle(MessageType.Published, result.Content, metaDataObj, args));
             if (stateChangeHandlers.Any())
             {
                 foreach(var handler in stateChangeHandlers)
                 { 
                     try
                     {
-                        await handler.HandleAsync(contentType, result.Content, metaDataObj, args);
+                        await handler.HandleAsync(MessageType.Published, result.Content, metaDataObj, args);
                     }
                     catch(Exception ex)
                     {
@@ -67,7 +71,7 @@ namespace EventBus.Publish
         private string BuildInsertSql()
         {
             StringBuilder sql = new StringBuilder();
-            sql.AppendLine(@"INSERT INTO `eventbus.messages` (");
+            sql.AppendLine($@"INSERT INTO `{TableName}` (");
             sql.AppendLine(@"`Id`,");
             sql.AppendLine(@"`MessageId`,");
             sql.AppendLine(@"`TransactId`,");
@@ -103,18 +107,39 @@ namespace EventBus.Publish
             sql.AppendLine(@"`MetaData`,");
             sql.AppendLine(@"`Content`");
             sql.AppendLine(@"FROM");
-            sql.AppendLine(@"`eventbus.messages`");
+            sql.AppendLine($@"`{TableName}`");
             sql.AppendLine(@"WHERE");
             sql.AppendLine(@"	(`MessageId` = @MessageId) AND (`TransactId` = @TransactId);");
 
-            sql.AppendLine(@"UPDATE `CAP_Consumer`.`Messages`");
+            sql.AppendLine($@"UPDATE `{TableName}`");
             sql.AppendLine(@"SET ");
-            sql.AppendLine(@"`State` = NULL,");
+            sql.AppendLine(@"`State` = @State,");
             sql.AppendLine(@"WHERE");
             sql.AppendLine(@"	(`MessageId` = @MessageId) AND (`TransactId` = @TransactId);");
             return sql.ToString(); 
         }
-        
+
+        public async Task EnsureCreatedAsync()
+        {
+            var sql = new StringBuilder();
+            sql.AppendLine($@"CREATE TABLE IF NOT EXISTS `{TableName}` (");
+            sql.AppendLine(@"  `Id` bigint(20) NOT NULL, ");
+            sql.AppendLine(@"  `MessageId` bigint(20) NOT NULL,");
+            sql.AppendLine(@"  `TransactId` bigint(20) NOT NULL, ");
+            sql.AppendLine(@"  `MetaData` longtext NOT NULL,");
+            sql.AppendLine(@"  `Content` longtext NOT NULL, ");
+            sql.AppendLine(@"  `Exchange` varchar(255) DEFAULT NULL,");
+            sql.AppendLine(@"  `RouteKey` varchar(255) DEFAULT NULL, ");
+            sql.AppendLine(@"  `Type` tinyint(4) NOT NULL,");
+            sql.AppendLine(@"  `State` tinyint(4) NOT NULL, ");
+            sql.AppendLine(@"  `CreationDate` datetime NOT NULL,");
+            sql.AppendLine(@"  PRIMARY KEY(`Id`)");
+            sql.AppendLine(@") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
+            using (var connection = new MySql.Data.MySqlClient.MySqlConnection(_eventBusMySQLOptions.ConnectionString))
+            {
+                await connection.ExecuteAsync(sql.ToString());
+            }
+        }
     }
 
     internal class ChangeStateMessage

@@ -1,7 +1,7 @@
 ﻿using EventBus.Core;
 using FeiniuBus;
 
-namespace EventBus.Publish
+namespace EventBus.Core
 {
     public class IdentityGenerator : IIdentityGenerator
     {

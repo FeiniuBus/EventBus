@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EventBus.Publish.Internal
+namespace EventBus.Core.Infrastructure
 {
     public class AffectedRowsCountUnExpectedException : Exception
     {

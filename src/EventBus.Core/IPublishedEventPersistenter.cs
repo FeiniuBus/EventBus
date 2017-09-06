@@ -6,6 +6,8 @@ namespace EventBus.Core
 {
     public interface IPublishedEventPersistenter
     {
+        Task EnsureCreatedAsync();
+
         #region Using Ado.Net
         /// <summary>
         /// [For Ado.NET] Insert a message into database asynchrony.

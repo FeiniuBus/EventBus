@@ -1,7 +1,9 @@
 ﻿using EventBus.Core;
+using EventBus.Core.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EventBus.Subscribe.Infrastructure
 {
@@ -19,6 +21,9 @@ namespace EventBus.Subscribe.Infrastructure
 
         public void Start()
         {
+            var ensureCreate = EnsureCreateAsync();
+            ensureCreate.Synchronize();
+
             StartConsumer();
         }
 
@@ -30,6 +35,14 @@ namespace EventBus.Subscribe.Infrastructure
                 _disposables.Add(consumer);
                 consumer.Start();
             }
+        }
+
+        private async Task EnsureCreateAsync()
+        {
+            var published = _serviceProvider.GetRequiredService<IPublishedEventPersistenter>();
+            var received = _serviceProvider.GetRequiredService<IReceivedEventPersistenter>();
+            await published.EnsureCreatedAsync();
+            await received.EnsureCreatedAsync();
         }
 
         public void Dispose()
