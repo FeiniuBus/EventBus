@@ -4,9 +4,9 @@ using EventBus.Publish;
 
 namespace EventBus.Sample.FailedEventHandlers
 {
-    public class NewUserFailedMessageHandler : IFailureHandler<NewUserEvent>
+    public class NewUserFailedMessageHandler : IFailureHandler
     {
-        public Task HandleAsync(NewUserEvent message)
+        public Task<bool> HandleAsync(string message)
         {
             throw new System.NotImplementedException();
         }

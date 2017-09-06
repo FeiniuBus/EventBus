@@ -23,7 +23,7 @@ namespace EventBus.Subscribe
 
         public void Reject()
         {
-            Channel.BasicReject(DeliveryTag, true);
+            Channel.BasicReject(DeliveryTag, false);
         }
     }
 }

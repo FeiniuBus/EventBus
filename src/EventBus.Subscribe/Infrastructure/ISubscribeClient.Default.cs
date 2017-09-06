@@ -36,10 +36,12 @@ namespace EventBus.Subscribe.Infrastructure
             Channel = Connection.CreateModel();
 
             Channel.ExchangeDeclare(_exchange, "topic", true);
+            Channel.ExchangeDeclare(_rabbitOptions.DefaultDeadLetterExchange, "topic", true);
 
             var args = new Dictionary<string, object>
             {
-                ["x-message-ttl"] = _rabbitOptions.QueueMessageExpires
+                ["x-message-ttl"] = _rabbitOptions.QueueMessageExpires,
+                ["x-dead-letter-exchange"] = _rabbitOptions.DefaultDeadLetterExchange,
             };
 
             Channel.QueueDeclare(
