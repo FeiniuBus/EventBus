@@ -54,7 +54,7 @@ namespace EventBus.Sample
                 options.ConsumerClientCount = 1;
                 options.DefaultGroup = "eventbus.testgroup";
 
-                options.RegisterExternalCallback("eventbus.testtopic", typeof(NewUserEventHandler));
+                options.RegisterCallback("eventbus.testtopic", typeof(NewUserEventHandler));
             });
         }
 
@@ -64,7 +64,7 @@ namespace EventBus.Sample
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
-            app.UseSub();
+            //app.UseSub();
 
             app.UseMvc();
         }

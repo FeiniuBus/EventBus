@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace EventBus.Subscribe
+namespace EventBus.Core
 {
     public interface IBootstrapper: IDisposable
     {

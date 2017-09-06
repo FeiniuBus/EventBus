@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EventBus.Subscribe.Infrastructure
+namespace EventBus.Core.Infrastructure
 {
     public class SubscribeInfo
     {

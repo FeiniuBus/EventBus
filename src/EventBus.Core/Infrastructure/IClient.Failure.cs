@@ -1,13 +1,12 @@
-﻿using EventBus.Core;
-using EventBus.Core.Infrastructure;
-using RabbitMQ.Client;
+﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
-namespace EventBus.Subscribe.Infrastructure
+namespace EventBus.Core.Infrastructure
 {
-    public class DefaultSubscribeClient : ISubscribeClient
+    public class FailureClient : IFailureClient
     {
         private IConnection Connection;
         private IModel Channel;
@@ -18,7 +17,7 @@ namespace EventBus.Subscribe.Infrastructure
 
         public Action<MessageContext> OnReceive { get; set; }
 
-        public DefaultSubscribeClient(IConnectionFactoryAccessor connectionFactoryAccessor
+        public FailureClient(IConnectionFactoryAccessor connectionFactoryAccessor
             , RabbitOptions rabbitOptions
             , string group
             , string exchange)
@@ -36,12 +35,12 @@ namespace EventBus.Subscribe.Infrastructure
             Channel = Connection.CreateModel();
 
             Channel.ExchangeDeclare(_exchange, "topic", true);
-            Channel.ExchangeDeclare(_rabbitOptions.DefaultDeadLetterExchange, "topic", true);
+            //Channel.ExchangeDeclare(_rabbitOptions.DefaultDeadLetterExchange, "topic", true);
 
             var args = new Dictionary<string, object>
             {
                 ["x-message-ttl"] = _rabbitOptions.QueueMessageExpires,
-                ["x-dead-letter-exchange"] = _rabbitOptions.DefaultDeadLetterExchange,
+                //["x-dead-letter-exchange"] = _rabbitOptions.DefaultDeadLetterExchange,
             };
 
             Channel.QueueDeclare(

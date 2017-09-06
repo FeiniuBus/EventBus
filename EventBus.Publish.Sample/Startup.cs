@@ -37,7 +37,7 @@ namespace EventBus.Publish.Sample
             services.AddEventBus(options =>
             {
                 options.UseEntityframework<SampleDbContext>();
-                options.UseMySQL()
+                //options.UseMySQL();
                 options.UseRabbitMQ(rabbit =>
                 {
                     rabbit.HostName = "192.168.206.128";

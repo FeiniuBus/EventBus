@@ -1,5 +1,6 @@
 ﻿using EventBus.Core;
 using EventBus.Core.Infrastructure;
+using EventBus.Subscribe.Infrastructure;
 using System;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -12,6 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection
             configure(options);
 
             serviceCollection.AddScoped<IMessageSerializer, DefaultMessageSerializer>();
+            serviceCollection.AddSingleton<IBootstrapper, DefaultBootstrapper>();
 
             foreach(var extension in options.Extensions)
             {

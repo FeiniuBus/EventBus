@@ -1,12 +1,9 @@
-﻿using System;
+﻿using EventBus.Core;
+using System;
 
 namespace EventBus.Subscribe
 {
-    public interface ISubscribeClient: IDisposable
+    public interface ISubscribeClient: IClient
     {
-        Action<SubscribeContext> OnReceive { get; set; }
-
-        void Subscribe(string[] topics);
-        void Listening();
     }
 }

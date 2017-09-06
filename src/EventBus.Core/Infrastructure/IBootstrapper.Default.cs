@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using EventBus.Core;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 
@@ -23,9 +24,12 @@ namespace EventBus.Subscribe.Infrastructure
 
         private void StartConsumer()
         {
-            var consumer = _serviceProvider.GetService<ISubscribeConsumer>();
-            _disposables.Add(consumer);
-            consumer.Start();
+            var consumers = _serviceProvider.GetServices<IConsumer>();
+            foreach(var consumer in consumers)
+            {
+                _disposables.Add(consumer);
+                consumer.Start();
+            }
         }
 
         public void Dispose()

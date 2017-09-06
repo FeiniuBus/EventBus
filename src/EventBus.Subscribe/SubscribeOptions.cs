@@ -1,5 +1,4 @@
-﻿using EventBus.Core;
-using EventBus.Subscribe.Infrastructure;
+﻿using EventBus.Core.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +15,7 @@ namespace EventBus.Subscribe
 
         public IList<SubscribeInfo> SubscribeInfos { get; } = new List<SubscribeInfo>();
 
-        public void RegisterExternalCallback(string topic, Type callbackType)
+        public void RegisterCallback(string topic, Type callbackType)
         {
             if (SubscribeInfos.Any(x => x.Topic == topic && x.Group == DefaultGroup))
             {
@@ -32,7 +31,7 @@ namespace EventBus.Subscribe
             });
         }
 
-        public void RegisterExternalCallback(string topic, string group, Type callbackType)
+        public void RegisterCallback(string topic, string group, Type callbackType)
         {
             if (SubscribeInfos.Any(x => x.Topic == topic && x.Group == group))
             {
@@ -48,7 +47,7 @@ namespace EventBus.Subscribe
             });
         }
 
-        public void RegisterExternalCallback(string topic, string group, string exchange, Type callbackType)
+        public void RegisterCallback(string topic, string group, string exchange, Type callbackType)
         {
             if (SubscribeInfos.Any(x => x.Topic == topic && x.Group == group))
             {
