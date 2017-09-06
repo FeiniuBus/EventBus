@@ -5,6 +5,7 @@ using EventBus.Core.State;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using System;
 using System.Data;
 using System.Text;
@@ -83,9 +84,11 @@ namespace EventBus.Publish
             metaData.Set("TransactID", message.TransactId.ToString());
             metaData.Set("MessageID", message.MessageId.ToString());
             metaData.Contact(descriptor.Message.MetaData);
+           
             message.MetaData = metaData.ToJson();
+
             await _publishedEventPersistenter.InsertAsync(message, dbConnection, dbTransaction);
-            await _messageQueueTransaction.PublishAsync(descriptor.Exchange, descriptor.RouteKey, Encoding.UTF8.GetBytes(descriptor.Message.GetTransferJson()));
+            await _messageQueueTransaction.PublishAsync(descriptor.Exchange, descriptor.RouteKey, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new { MetaData = metaData, Content = descriptor.Message.Content })));
         }
 
         public async Task RollbackAsync()
