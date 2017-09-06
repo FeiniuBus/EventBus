@@ -12,7 +12,6 @@ namespace EventBus.Subscribe
         {
             services.Configure(setup);
 
-            //services.AddSingleton<IBootstrapper, DefaultBootstrapper>();
             services.AddScoped<IConsumer, DefaultSubscribeConsumer>();
             services.AddTransient<IMessageDeSerializer, DefaultMessageDeSerializer>();
 
