@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
-    <PackageProjectUrl>https://github.com/FeiniuBus/EventBus</PackageProjectUrl>
+    <TargetFrameworks>netstandard1.6;netstandard2.0;</TargetFrameworks>
     <Version>0.0.1</Version>
+    <PackageProjectUrl>https://github.com/FeiniuBus/EventBus</PackageProjectUrl>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
 
