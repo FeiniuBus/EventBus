@@ -1,7 +1,7 @@
 ﻿using EventBus.Core.State;
 using System;
 
-namespace EventBus.Subscribe.Internal.Model
+namespace EventBus.Core.Internal.Model
 {
     public class ReceivedMessage
     {

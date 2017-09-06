@@ -1,6 +1,7 @@
 ﻿using EventBus.Core;
 using EventBus.Subscribe.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using System;
 
@@ -15,6 +16,7 @@ namespace EventBus.Subscribe
             services.AddScoped<IConsumer, DefaultSubscribeConsumer>();
             services.AddTransient<IMessageDeSerializer, DefaultMessageDeSerializer>();
             services.AddScoped<IReceivedEventPersistenter, ReceivedEventPersistenter>();
+            services.TryAddTransient<IMessageDecoder, DefaultMessageDecoder>();
 
             services.ConfigurationSubscribeCallbacks();
 

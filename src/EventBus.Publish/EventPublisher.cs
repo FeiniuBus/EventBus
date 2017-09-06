@@ -87,7 +87,7 @@ namespace EventBus.Publish
            
             message.MetaData = descriptor.Message.MetaData.ToJson();
             await _publishedEventPersistenter.InsertAsync(message, dbConnection, dbTransaction);
-            await _messageQueueTransaction.PublishAsync(descriptor.Exchange, descriptor.RouteKey, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new { MetaData = metaData, Content = descriptor.Message.Content }));
+            await _messageQueueTransaction.PublishAsync(descriptor.Exchange, descriptor.RouteKey, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new { MetaData = metaData, Content = descriptor.Message.Content })));
         }
 
         public async Task RollbackAsync()

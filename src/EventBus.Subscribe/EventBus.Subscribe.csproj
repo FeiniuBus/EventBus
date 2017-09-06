@@ -16,4 +16,8 @@
     <ProjectReference Include="..\EventBus.Core\EventBus.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Internal\Model\" />
+  </ItemGroup>
+
 </Project>
