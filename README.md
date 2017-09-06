@@ -20,6 +20,10 @@ services.AddEventBus(options =>
   });
  });
  ```
+ *** Add following codes in `Configure` scope of `StartUp.cs` ***
+ ```csharp
+ app.UseEventBus();
+ ```
 
 ### Step 2 : Publish Event
 * Inject `IEventPublisher` in constructor like `.ctor(IEventPublisher eventPublisher)`
@@ -61,7 +65,7 @@ using(var transaction = dbContext.Database.BeginTransaction)
   dbConnection.Close();
   
   //Confirm Published Event.The event message won't publish untill invoked **IEventPublisher.ConfirmAsync()**
-  //And you can decide when the event message be confirmed all by your self.
+  //And you can decide when the event message should be confirmed all by your self.
   await _eventPublisher.ConfirmAsync();
   
   //Or you can just rollback these messages when exception was thrown.
@@ -87,8 +91,11 @@ using(var transaction = dbContext.Database.BeginTransaction)
 services.AddSub(options =>
 {
   options.ConsumerClientCount = 1;
-  options.DefaultGroup = "eventbus.testgroup";
+  options.DefaultGroup = "/*Default Group Name*/";
+  // Use default group
   options.RegisterCallback(/*RouteKey*/, /*Type of your callback handler*/);
+  // Use specialized group
+  options.RegisterCallback(/*RouteKey*/,/*Group Name*/ /*Type of your callback handler*/);
  });
  ```
  
