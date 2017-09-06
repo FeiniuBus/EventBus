@@ -13,12 +13,11 @@ namespace EventBus.Core.Infrastructure
         private readonly IServiceProvider _serviceProvider;
         private readonly FailureHandleOptions _subscribeOptions;
 
-        public FailureConsumer(IServiceProvider serviceProvider
-            , FailureHandleOptions subscribeOptionsAccessor)
+        public FailureConsumer(IServiceProvider serviceProvider)
         {
             _disposables = new List<IDisposable>();
             _serviceProvider = serviceProvider;
-            _subscribeOptions = subscribeOptionsAccessor;
+            _subscribeOptions = _serviceProvider.GetService<FailureHandleOptions>();
         }
 
         public void Start()
@@ -32,6 +31,8 @@ namespace EventBus.Core.Infrastructure
 
         private IClient[] GetClients()
         {
+            if (_subscribeOptions == null) return new IClient[] { };
+
             var subscribeInfos = _subscribeOptions.DeadLetterInfos;
             var groupedInfos = subscribeInfos.GroupBy(x => x.Group)
                 .ToDictionary(x => x.Key, x => x.GroupBy(y => y.Exchange)

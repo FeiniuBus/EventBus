@@ -43,10 +43,10 @@ namespace EventBus.Sample
                     rabbit.HostName = "localhost";
                 });
 
-                options.UseFailureHandle(failure =>
-                {
-                    failure.RegisterFailureCallback("eventbus.testtopic", typeof(NewUserFailedMessageHandler));
-                });
+                //options.UseFailureHandle(failure =>
+                //{
+                //    failure.RegisterFailureCallback("eventbus.testtopic", typeof(NewUserFailedMessageHandler));
+                //});
             });
 
 
