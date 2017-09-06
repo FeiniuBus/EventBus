@@ -82,8 +82,8 @@ namespace EventBus.Publish
             metaData.Set("ContentType", descriptor.ContentType);
             metaData.Set("TransactID", message.TransactId.ToString());
             metaData.Set("MessageID", message.MessageId.ToString());
-            metaData.Contact(descriptor.Message.MetaData);
-            message.MetaData = metaData.ToJson();
+            descriptor.Message.MetaData.Contact(metaData);
+            message.MetaData = descriptor.Message.MetaData.ToJson();
             await _publishedEventPersistenter.InsertAsync(message, dbConnection, dbTransaction);
             await _messageQueueTransaction.PublishAsync(descriptor.Exchange, descriptor.RouteKey, Encoding.UTF8.GetBytes(descriptor.Message.GetTransferJson()));
         }
