@@ -44,7 +44,7 @@ namespace EventBus.Publish
             if (stateChangeHandlers.Any())
             {
                 foreach(var handler in stateChangeHandlers)
-                {
+                { 
                     try
                     {
                         await handler.HandleAsync(contentType, result.Content, metaDataObj, args);
