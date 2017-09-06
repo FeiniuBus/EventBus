@@ -2,7 +2,7 @@
 ## Sample
 ### Step 1 : Configure EventBus Options
 *** Add following code after `services.AddDbContext` in `StartUp.cs` ***
-```c
+```csharp
 services.AddEventBus(options =>
 {
   // using EntityFramework
@@ -25,7 +25,7 @@ services.AddEventBus(options =>
 * Inject `IEventPublisher` in constructor like `.ctor(IEventPublisher eventPublisher)`
 * Begin a transaction
   * ***using EntityFramework***
-```c
+```csharp
 
 using(var transaction = dbContext.Database.BeginTransaction)
 {
@@ -47,7 +47,7 @@ using(var transaction = dbContext.Database.BeginTransaction)
 ```
   * ***using Ado.NET***
   
-  ```c
+  ```csharp
   IDbConnection dbConnection; /*Open your database connection.*/
   IDbTransaction dbTransaction = dbConnection.BeginTransaction();
   
@@ -71,7 +71,7 @@ using(var transaction = dbContext.Database.BeginTransaction)
 ### step 3 : Dead letter callback handler
  * Declare a callback handler class implemented `IFailureHandler`
  * Register callback handle in `AddEventBus` scope
- ```c
+ ```csharp
  options.UseFailureHandle(failure =>
  {
   failure.RegisterFailureCallback(/*RouteKey*/, /*Type of your deadletter callback handler*/);
@@ -83,7 +83,7 @@ using(var transaction = dbContext.Database.BeginTransaction)
 ### Step 4 : Consumer callback handler
 * Declare a callback handler class implemented `ISubscribeCallbackHandler`
 * Register callback handle in `StartUp.cs`
-```c
+```csharp
 services.AddSub(options =>
 {
   options.ConsumerClientCount = 1;
