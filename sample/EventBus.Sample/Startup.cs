@@ -56,6 +56,7 @@ namespace EventBus.Sample
                 options.DefaultGroup = "eventbus.testgroup";
 
                 options.RegisterCallback("eventbus.testtopic", typeof(NewUserEventHandler));
+                options.RegisterCallback("eventbus.testtopic", "eventbus.testgroup2", typeof(NewUserEventHandler));
             });
         }
 

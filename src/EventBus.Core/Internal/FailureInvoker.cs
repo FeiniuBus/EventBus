@@ -1,5 +1,6 @@
 ﻿using EventBus.Core.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -23,6 +24,8 @@ namespace EventBus.Core.Internal
             _serviceProvider = _serviceScope.ServiceProvider;
             _failureOptions = _serviceProvider.GetRequiredService<FailureHandleOptions>();
             Context = context;
+
+            SetUpFailureContext();
         }
 
         public Task<bool> InvokeAsync()
@@ -56,6 +59,19 @@ namespace EventBus.Core.Internal
         {
             var receivedMsg = _serviceProvider.GetRequiredService<IMessageDecoder>().Decode(Context);
             return receivedMsg.Content;
+        }
+
+        private void SetUpFailureContext()
+        {
+            var accessor = _serviceProvider.GetRequiredService<IFailureContextAccessor>();
+            var xDeath = Context.Args.BasicProperties.Headers["x-death"];
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(xDeath);
+            var jarray = JArray.Parse(json);
+            var jbytes = (jarray[0]["queue"]).ToObject<byte[]>();
+            accessor.FailureContext = new FailureContext
+            {
+                FailureGroup = Encoding.UTF8.GetString(jbytes)
+            };
         }
 
         public void Dispose()
