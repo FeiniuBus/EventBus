@@ -85,9 +85,10 @@ namespace EventBus.Publish
             metaData.Set("MessageID", message.MessageId.ToString());
             metaData.Contact(descriptor.Message.MetaData);
            
-            message.MetaData = descriptor.Message.MetaData.ToJson();
+            message.MetaData = metaData.ToJson();
+
             await _publishedEventPersistenter.InsertAsync(message, dbConnection, dbTransaction);
-            await _messageQueueTransaction.PublishAsync(descriptor.Exchange, descriptor.RouteKey, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new { MetaData = metaData, Content = descriptor.Message.Content }));
+            await _messageQueueTransaction.PublishAsync(descriptor.Exchange, descriptor.RouteKey, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new { MetaData = metaData, Content = descriptor.Message.Content })));
         }
 
         public async Task RollbackAsync()
