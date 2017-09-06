@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using EventBus.Sample.FailedEventHandlers;
+using EventBus.Core;
 
 namespace EventBus.Sample
 {
@@ -65,7 +66,7 @@ namespace EventBus.Sample
             loggerFactory.AddDebug();
 
             //app.UseSub();
-
+            app.UseEventBus();
             app.UseMvc();
         }
     }
