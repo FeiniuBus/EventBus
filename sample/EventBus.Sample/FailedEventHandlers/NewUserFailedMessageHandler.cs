@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using EventBus.Sample.Events;
 using EventBus.Publish;
+using EventBus.Core;
 
 namespace EventBus.Sample.FailedEventHandlers
 {
@@ -8,7 +9,7 @@ namespace EventBus.Sample.FailedEventHandlers
     {
         public Task<bool> HandleAsync(string message)
         {
-            throw new System.NotImplementedException();
+            return Task.FromResult(true);
         }
     }
 }

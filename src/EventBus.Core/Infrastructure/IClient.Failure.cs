@@ -95,7 +95,8 @@ namespace EventBus.Core.Infrastructure
                 Queue = _group,
                 DeliveryTag = e.DeliveryTag,
                 Channel = Channel,
-                Content = e.Body
+                Content = e.Body,
+                Args = e
             };
             OnReceive?.Invoke(context);
         }

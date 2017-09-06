@@ -1,4 +1,5 @@
 ﻿using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace EventBus.Core
 {
@@ -15,6 +16,8 @@ namespace EventBus.Core
         public IModel Channel { get; set; }
 
         public byte[] Content { get; set; }
+
+        public BasicDeliverEventArgs Args { get; set; }
 
         public void Ack()
         {

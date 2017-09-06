@@ -17,6 +17,17 @@ namespace EventBus.Core
         {
             var options = new FailureHandleOptions();
             _configure(options);
+
+            var provider = serviceCollection.BuildServiceProvider();
+            var rabbitOptions = provider.GetRequiredService<RabbitOptions>();
+
+            options.BuildWithDefaultSelfExchangeName(rabbitOptions.DefaultExchangeName, rabbitOptions.DefaultDeadLetterExchange);
+
+            foreach(var item in options.DeadLetterInfos)
+            {
+                serviceCollection.AddScoped(item.CallbackType, item.CallbackType);
+            }
+
             serviceCollection.AddSingleton(options);
         }
     }

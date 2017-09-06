@@ -13,6 +13,7 @@ namespace Microsoft.Extensions.DependencyInjection
             configure(options);
 
             serviceCollection.AddScoped<IMessageSerializer, DefaultMessageSerializer>();
+            serviceCollection.AddScoped<IConsumer, FailureConsumer>();
             serviceCollection.AddSingleton<IBootstrapper, DefaultBootstrapper>();
 
             foreach(var extension in options.Extensions)

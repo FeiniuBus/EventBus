@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace EventBus.Publish
+namespace EventBus.Core
 {
     public interface IFailureHandler
     {
