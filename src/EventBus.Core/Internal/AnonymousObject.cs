@@ -20,12 +20,12 @@ namespace EventBus.Core.Internal
 
         public T GetValue<T>(string memberName)
         {
-            var callSiteBinder = Binder.Convert(CSharpBinderFlags.None, typeof(T), _type);
+            var callSiteBinder = Microsoft.CSharp.RuntimeBinder.Binder.Convert(CSharpBinderFlags.None, typeof(T), _type);
             var typeDeclarer = CallSite<Func<CallSite, object, T>>.Create(callSiteBinder);
 
             Func<CallSite, object, T> typeDeclarerTarget = typeDeclarer.Target;
            
-            var memberFinder = CallSite<Func<CallSite, object, object>>.Create(Binder.GetMember(CSharpBinderFlags.None, memberName, _type, new CSharpArgumentInfo[]
+            var memberFinder = CallSite<Func<CallSite, object, object>>.Create(Microsoft.CSharp.RuntimeBinder.Binder.GetMember(CSharpBinderFlags.None, memberName, _type, new CSharpArgumentInfo[]
                 {
                     CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null)
                 }));
@@ -35,12 +35,12 @@ namespace EventBus.Core.Internal
 
         public object GetValue(Type t, string memberName)
         {
-            var callSiteBinder = Binder.Convert(CSharpBinderFlags.None, t, _type);
+            var callSiteBinder = Microsoft.CSharp.RuntimeBinder.Binder.Convert(CSharpBinderFlags.None, t, _type);
             var typeDeclarer = CallSite<Func<CallSite, object, object>>.Create(callSiteBinder);
 
             Func<CallSite, object, object> typeDeclarerTarget = typeDeclarer.Target;
 
-            var memberFinder = CallSite<Func<CallSite, object, object>>.Create(Binder.GetMember(CSharpBinderFlags.None, memberName, _type, new CSharpArgumentInfo[]
+            var memberFinder = CallSite<Func<CallSite, object, object>>.Create(Microsoft.CSharp.RuntimeBinder.Binder.GetMember(CSharpBinderFlags.None, memberName, _type, new CSharpArgumentInfo[]
                 {
                     CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null)
                 }));
