@@ -87,8 +87,11 @@ using(var transaction = dbContext.Database.BeginTransaction)
 services.AddSub(options =>
 {
   options.ConsumerClientCount = 1;
-  options.DefaultGroup = "eventbus.testgroup";
+  options.DefaultGroup = "/*Default Group Name*/";
+  // Use default group
   options.RegisterCallback(/*RouteKey*/, /*Type of your callback handler*/);
+  // Use specialized group
+  options.RegisterCallback(/*RouteKey*/,/*Group Name*/ /*Type of your callback handler*/);
  });
  ```
  
