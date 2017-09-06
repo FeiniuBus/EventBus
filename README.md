@@ -2,7 +2,7 @@
 ## Sample
 ### Step 1 : Configure EventBus Options
 *** Add following code after `services.AddDbContext` in `StartUp.cs` ***
-```
+```csharp
 services.AddEventBus(options =>
 {
   // using EntityFramework
@@ -25,7 +25,7 @@ services.AddEventBus(options =>
 * Inject `IEventPublisher` in constructor like `.ctor(IEventPublisher eventPublisher)`
 * Begin a transaction
   * ***using EntityFramework***
-```
+```csharp
 
 using(var transaction = dbContext.Database.BeginTransaction)
 {
@@ -46,14 +46,50 @@ using(var transaction = dbContext.Database.BeginTransaction)
 }
 ```
   * ***using Ado.NET***
+  
+  ```csharp
+  IDbConnection dbConnection; /*Open your database connection.*/
+  IDbTransaction dbTransaction = dbConnection.BeginTransaction();
+  
+  //TODO:Businesses codes
+  
+  //Publish Event
+  await _eventPublisher.PrepareAsync(/*RouteKey*/, /*Content Object*/, /*MetaData Object*/,dbConnection,dbTransaction);
+  
+  //Commit transaction
+  dbTransaction.Commit();
+  dbConnection.Close();
+  
+  //Confirm Published Event.The event message won't publish untill invoked **IEventPublisher.ConfirmAsync()**
+  //And you can decide when the event message be confirmed all by your self.
+  await _eventPublisher.ConfirmAsync();
+  
+  //Or you can just rollback these messages when exception was thrown.
+  await _eventPublisher.RollbackAsync();
   ```
-  Still on it
-  ```
-
-### Step 3 : Consumer callback handler
+  
+### step 3 : Dead letter callback handler
+ * Declare a callback handler class implemented `IFailureHandler`
+ * Register callback handle in `AddEventBus` scope
+ ```csharp
+ options.UseFailureHandle(failure =>
+ {
+  failure.RegisterFailureCallback(/*RouteKey*/, /*Type of your deadletter callback handler*/);
+ });
+ ```
+ 
+ 
+ 
+### Step 4 : Consumer callback handler
 * Declare a callback handler class implemented `ISubscribeCallbackHandler`
 * Register callback handle in `StartUp.cs`
-```
-Still on it
-```
+```csharp
+services.AddSub(options =>
+{
+  options.ConsumerClientCount = 1;
+  options.DefaultGroup = "eventbus.testgroup";
+  options.RegisterCallback(/*RouteKey*/, /*Type of your callback handler*/);
+ });
+ ```
+ 
 
