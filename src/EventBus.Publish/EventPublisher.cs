@@ -28,6 +28,8 @@ namespace EventBus.Publish
             _publishedEventPersistenter = serviceProvider.GetRequiredService< IPublishedEventPersistenter>();
             _messageQueueTransaction = serviceProvider.GetRequiredService< IMessageQueueTransaction>();
             _messageSerializer = serviceProvider.GetRequiredService< IMessageSerializer>();
+
+            TransactID = _identityGenerator.NextIdentity();
         }
 
         private EventPublisher(IServiceScope serviceScope) : this(serviceScope.ServiceProvider)
