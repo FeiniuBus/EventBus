@@ -2,8 +2,8 @@
 
 namespace EventBus.Publish
 {
-    public interface IFailureHandler<MT> where MT : class
+    public interface IFailureHandler
     {
-        Task HandleAsync(MT message);
+        Task<bool> HandleAsync(string message);
     }
 }

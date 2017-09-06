@@ -3,9 +3,9 @@ using System;
 
 namespace EventBus.Core.Infrastructure
 {
-    public class DefaultMessage<TContent> : IMessage<TContent>
+    public class DefaultMessage : IMessage
     {
-        public DefaultMessage(TContent content, MessageState state = MessageState.Processing)
+        public DefaultMessage(object content, MessageState state = MessageState.Processing)
         {
             MetaData = new MetaData();
             Content = content;
@@ -15,7 +15,7 @@ namespace EventBus.Core.Infrastructure
 
         public IMetaData MetaData { get; }
 
-        public TContent Content { get; }
+        public object Content { get; }
 
         public DateTime CreateTime { get; }
 

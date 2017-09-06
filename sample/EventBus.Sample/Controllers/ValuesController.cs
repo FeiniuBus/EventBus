@@ -5,17 +5,20 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using EventBus.Publish;
 using EventBus.Sample.Events;
+using EventBus.Core;
 
 namespace EventBus.Sample.Controllers
 {
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
-        private readonly IPublisher _publisher;
+        private readonly IEventPublisher _eventPublisher;
+        private readonly SampleDbContext _sampleDbContext;
 
-        public ValuesController(IPublisher publisher)
+        public ValuesController(IEventPublisher eventPublisher, SampleDbContext sampleDbContext)
         {
-            _publisher = publisher;
+            _eventPublisher = eventPublisher;
+            _sampleDbContext = sampleDbContext;
         }
 
         // GET api/values
@@ -26,22 +29,6 @@ namespace EventBus.Sample.Controllers
             return new string[] { "value1", "value2" };
         }
 
-        //public Task PublishAsync(IDbTransic tran, Action<string> businessMethod)
-        //{
-        //    try
-        //    {
-                
-        //        businessMethod.Invoke();
-
-        //        var success = Publish(message);
-        //        if (!success) throw new Exception("");
-        //    } catch (Exception ex)
-        //    {
-        //        dbCont
-        //    }
-
-        //}
-
         // GET api/values/5
         [HttpGet("{id}")]
         public string Get(int id)
@@ -51,8 +38,16 @@ namespace EventBus.Sample.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public async Task<IActionResult> Post([FromBody]string value)
         {
+            using (var transaction = await _sampleDbContext.Database.BeginTransactionAsync())
+            {
+                await _eventPublisher.PrepareAsync("eventbus.testtopic", new { value }, new { signature = "" });
+                transaction.Commit();
+            }
+            await _eventPublisher.ConfirmAsync();
+
+            return Ok();
         }
 
         // PUT api/values/5

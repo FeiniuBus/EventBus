@@ -1,4 +1,5 @@
 ﻿using EventBus.Core;
+using EventBus.Core.Infrastructure;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
@@ -34,13 +35,13 @@ namespace EventBus.Subscribe.Infrastructure
             EnsureConnection();
             Channel = Connection.CreateModel();
 
-            Channel.ExchangeDeclare(_exchange
-                , "topic"
-                , true);
+            Channel.ExchangeDeclare(_exchange, "topic", true);
+            Channel.ExchangeDeclare(_rabbitOptions.DefaultDeadLetterExchange, "topic", true);
 
             var args = new Dictionary<string, object>
             {
-                ["x-message-ttl"] = _rabbitOptions.QueueMessageExpires
+                ["x-message-ttl"] = _rabbitOptions.QueueMessageExpires,
+                ["x-dead-letter-exchange"] = _rabbitOptions.DefaultDeadLetterExchange,
             };
 
             Channel.QueueDeclare(

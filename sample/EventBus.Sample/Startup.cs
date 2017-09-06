@@ -1,12 +1,12 @@
-﻿using EventBus.Core;
-using EventBus.Publish;
-using EventBus.Sample.EventHandlers;
+﻿using EventBus.Sample.EventHandlers;
 using EventBus.Subscribe;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using EventBus.Sample.FailedEventHandlers;
 
 namespace EventBus.Sample
 {
@@ -24,28 +24,37 @@ namespace EventBus.Sample
 
         public IConfigurationRoot Configuration { get; }
 
+        private const string ConnectionString = "Server=localhost;Port=3306;Database=FeiniuCAP; User=root;Password=123456;charset=UTF-8";
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
             services.AddMvc();
 
+            services.AddDbContext<SampleDbContext>(options => options.UseMySql(ConnectionString));
+
             services.AddEventBus(options =>
             {
-                options.HostName = "localhost";
+                options.UseEntityframework<SampleDbContext>();
+                options.UseRabbitMQ(rabbit =>
+                {
+                    rabbit.HostName = "localhost";
+                });
+
+                options.UseFailureHandle(failure =>
+                {
+                    failure.RegisterFailureCallback("eventbus.testtopic", typeof(NewUserFailedMessageHandler));
+                });
             });
 
-            services.AddPub(options =>
-            {
-
-            });
 
             services.AddSub(options =>
             {
                 options.ConsumerClientCount = 1;
                 options.DefaultGroup = "eventbus.testgroup";
 
-                options.RegisterExternalCallback("eventbus.testtopic", "eventbus.testgroup", typeof(NewUserEventHandler));
+                options.RegisterExternalCallback("eventbus.testtopic", typeof(NewUserEventHandler));
             });
         }
 
@@ -58,6 +67,14 @@ namespace EventBus.Sample
             app.UseSub();
 
             app.UseMvc();
+        }
+    }
+
+    public class SampleDbContext : DbContext
+    {
+        public SampleDbContext(DbContextOptions<SampleDbContext> options) : base(options)
+        {
+
         }
     }
 }
