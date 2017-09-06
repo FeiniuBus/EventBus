@@ -1,18 +1,24 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 
 namespace EventBus.Core.Infrastructure
 {
     public class FailureHandleOptions
     {
-        public IReadOnlyCollection<DeadLetterInfo> DeadLetterInfos { get; private set; }
+        public IReadOnlyCollection<SubscribeInfo> DeadLetterInfos { get; private set; }
+
+        private IList<SubscribeInfo> _subscribeInfos;
+
+        public FailureHandleOptions()
+        {
+            _subscribeInfos = new List<SubscribeInfo>();
+        }
 
         public void RegisterFailureCallback(string topic, Type callbackType)
         {
-            var deadLetterInfos = DeadLetterInfos?.ToList() ?? new List<DeadLetterInfo>();
-            foreach (var info in DeadLetterInfos)
+            foreach (var info in _subscribeInfos)
             {
                 if (info.Topic == topic)
                 {
@@ -20,13 +26,39 @@ namespace EventBus.Core.Infrastructure
                 }
             }
 
-            deadLetterInfos.Add(new DeadLetterInfo
+            _subscribeInfos.Add(new SubscribeInfo
             {
                 Topic = topic,
-                HandlerType = callbackType
+                CallbackType = callbackType
             });
-
-            DeadLetterInfos = new ReadOnlyCollection<DeadLetterInfo>(deadLetterInfos);
         }
+
+        public void RegisterFailureCallback(string topic, string selfExchange, Type callbackType)
+        {
+            _subscribeInfos.Add(new SubscribeInfo
+            {
+                Group = DeadLetterQueueName(selfExchange),
+                Topic = topic,
+                CallbackType = callbackType
+            });
+        }
+
+        public void BuildWithDefaultSelfExchangeName(string selfExchangeName, string deadLetterExchange)
+        {
+            foreach(var info in _subscribeInfos)
+            {
+                if (info.Group == null) info.Group = DeadLetterQueueName(selfExchangeName);
+                info.Exchange = deadLetterExchange;
+
+                if (_subscribeInfos.Count(x => x.Group == info.Group && x.Topic == info.Topic && x.Exchange == info.Topic) > 1)
+                {
+                    throw new InvalidOperationException($"Dulicate {info.Exchange} {info.Topic} {info.Group}");
+                }
+            }
+
+            DeadLetterInfos = new ReadOnlyCollection<SubscribeInfo>(_subscribeInfos);
+        }
+
+        private string DeadLetterQueueName(string selfExchange) => "deadletter." + selfExchange;
     }
 }

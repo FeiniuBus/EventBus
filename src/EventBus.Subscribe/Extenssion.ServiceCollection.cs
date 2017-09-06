@@ -1,4 +1,5 @@
-﻿using EventBus.Subscribe.Infrastructure;
+﻿using EventBus.Core;
+using EventBus.Subscribe.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
@@ -11,8 +12,8 @@ namespace EventBus.Subscribe
         {
             services.Configure(setup);
 
-            services.AddSingleton<IBootstrapper, DefaultBootstrapper>();
-            services.AddScoped<ISubscribeConsumer, DefaultSubscribeConsumer>();
+            //services.AddSingleton<IBootstrapper, DefaultBootstrapper>();
+            services.AddScoped<IConsumer, DefaultSubscribeConsumer>();
             services.AddTransient<IMessageDeSerializer, DefaultMessageDeSerializer>();
 
             services.ConfigurationSubscribeCallbacks();

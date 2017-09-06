@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EventBus.Subscribe
+namespace EventBus.Core
 {
     public interface IBootstrapper: IDisposable
     {

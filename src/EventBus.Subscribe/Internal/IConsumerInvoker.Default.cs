@@ -6,19 +6,21 @@ using System.Reflection;
 using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Text;
+using EventBus.Core.Infrastructure;
+using EventBus.Core;
 
 namespace EventBus.Subscribe.Internal
 {
-    internal class DefaultConsumerInvoker : IConsumerInvoker
+    internal class DefaultConsumerInvoker : IInvoker
     {
         private readonly IServiceScope _serviceScope;
         private readonly IServiceProvider _serviceProvider;
         private readonly SubscribeOptions _subscribeOptions;
 
-        public SubscribeContext Context { get; }
+        public MessageContext Context { get; }
 
         public DefaultConsumerInvoker(IServiceProvider serviceProvider
-            , SubscribeContext context)
+            , MessageContext context)
         {
             _serviceScope = serviceProvider.CreateScope();
             _serviceProvider = _serviceScope.ServiceProvider;
