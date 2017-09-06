@@ -8,16 +8,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Internal\Model\**" />
+    <EmbeddedResource Remove="Internal\Model\**" />
+    <None Remove="Internal\Model\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.2" />
     <PackageReference Include="MySqlConnector" Version="0.26.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EventBus.Core\EventBus.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Internal\Model\" />
   </ItemGroup>
 
 </Project>

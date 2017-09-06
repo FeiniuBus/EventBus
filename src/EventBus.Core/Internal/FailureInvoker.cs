@@ -54,8 +54,8 @@ namespace EventBus.Core.Internal
 
         private string GetMessage(SubscribeInfo subscribeInfo)
         {
-            var message = Encoding.UTF8.GetString(Context.Content);
-            return message;
+            var receivedMsg = _serviceProvider.GetRequiredService<IMessageDecoder>().Decode(Context);
+            return receivedMsg.Content;
         }
 
         public void Dispose()
