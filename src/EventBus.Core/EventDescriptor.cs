@@ -14,13 +14,13 @@ namespace EventBus.Core
             Arguments = args == null ? null : new AnonymousObject(args);
         }
 
-        public string Exchange { get; }
+        public string Exchange { get; internal set; }
 
-        public string RouteKey { get; }
+        public string RouteKey { get; internal set; }
 
-        public IMessage Message { get; }
+        public IMessage Message { get; internal set; }
 
-        public string ContentType { get; }
+        public string ContentType { get; internal set; }
 
         public AnonymousObject Arguments { get; set; }
     }
