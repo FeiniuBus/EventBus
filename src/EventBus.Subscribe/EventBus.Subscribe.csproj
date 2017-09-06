@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MySqlConnector" Version="0.26.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\EventBus.Core\EventBus.Core.csproj" />
   </ItemGroup>
 
