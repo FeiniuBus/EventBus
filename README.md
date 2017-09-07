@@ -1,5 +1,10 @@
 # EventBus
-## Sample
+[![Build status](https://ci.appveyor.com/api/projects/status/42jeqj0h28pdoc3x/branch/master?svg=true)](https://ci.appveyor.com/project/Jamesxql/eventbus/branch/master)
+[![Build Status](https://travis-ci.org/FeiniuBus/EventBus.svg?branch=master)](https://travis-ci.org/FeiniuBus/EventBus)
+
+## OverView
+
+## Getting Started
 ### Step 1 : Configure EventBus Options
 *** Add following code after `services.AddDbContext` in `StartUp.cs` ***
 ```csharp
