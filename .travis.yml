@@ -9,11 +9,8 @@ env:
     - DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
 os:
-  - osx
   - linux
 
-osx_image: xcode8.3
 script:
   - if test "$TRAVIS_OS_NAME" == "linux"; then dotnet restore -r ubuntu.14.04-x64; fi
-  - if test "$TRAVIS_OS_NAME" == "osx"; then  dotnet restore -r osx.10.12-x64 --disable-parallel; fi
   - dotnet build -c Release
