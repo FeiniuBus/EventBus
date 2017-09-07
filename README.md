@@ -2,6 +2,8 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/42jeqj0h28pdoc3x/branch/master?svg=true)](https://ci.appveyor.com/project/Jamesxql/eventbus/branch/master)
 [![Build Status](https://travis-ci.org/FeiniuBus/EventBus.svg?branch=master)](https://travis-ci.org/FeiniuBus/EventBus)
 
+EventBus is a .Net Standard library to achieve eventually consistent in distributed architectures system like SOA,MicroService. It is lightweight,easy to use and efficiently.
+
 ## OverView
 
 ## Getting Started
