@@ -2,7 +2,7 @@ language: csharp
 sudo: false
 mono: none
 dotnet: 2.0.0
-dist: trusty
+dist: xenial
 env:
   global:
     - DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
@@ -12,5 +12,5 @@ os:
   - linux
 
 script:
-  - if test "$TRAVIS_OS_NAME" == "linux"; then dotnet restore -r ubuntu.14.04-x64; fi
+  - if test "$TRAVIS_OS_NAME" == "linux"; then dotnet restore -r ubuntu.16.04-x64; fi
   - dotnet build -c Release
