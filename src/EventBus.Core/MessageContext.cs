@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using Newtonsoft.Json;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
 namespace EventBus.Core
@@ -13,10 +14,12 @@ namespace EventBus.Core
 
         public ulong DeliveryTag { get; set; }
 
+        [JsonIgnore]
         public IModel Channel { get; set; }
 
         public byte[] Content { get; set; }
 
+        [JsonIgnore]
         public BasicDeliverEventArgs Args { get; set; }
 
         public void Ack()

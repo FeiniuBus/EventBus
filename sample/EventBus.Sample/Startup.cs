@@ -64,7 +64,8 @@ namespace EventBus.Sample
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-            loggerFactory.AddDebug();
+            loggerFactory.AddDebug()
+                .AddConsole();
 
             app.UseEventBus();
 
