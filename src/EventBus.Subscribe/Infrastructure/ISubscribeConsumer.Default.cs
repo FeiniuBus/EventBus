@@ -1,7 +1,9 @@
 ﻿using EventBus.Core;
+using EventBus.Core.Extensions;
 using EventBus.Core.Infrastructure;
 using EventBus.Subscribe.Internal;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -16,17 +18,20 @@ namespace EventBus.Subscribe.Infrastructure
         private readonly SubscribeOptions _subscribeOptions;
         private readonly IReceivedEventPersistenter _receivedEventPersistenter;
         private readonly IMessageDecoder _messageDecoder;
+        private readonly ILogger<DefaultSubscribeConsumer> _logger;
 
         public DefaultSubscribeConsumer(IServiceProvider serviceProvider
             , IReceivedEventPersistenter receivedEventPersistenter
             , IMessageDecoder messageDecoder
-            , IOptions<SubscribeOptions> subscribeOptionsAccessor)
+            , IOptions<SubscribeOptions> subscribeOptionsAccessor
+            , ILogger<DefaultSubscribeConsumer> logger)
         {
             _disposables = new List<IDisposable>();
             _serviceProvider = serviceProvider;
             _subscribeOptions = subscribeOptionsAccessor.Value;
             _receivedEventPersistenter = receivedEventPersistenter;
             _messageDecoder = messageDecoder;
+            _logger = logger;
         }
 
         public void Start()
@@ -45,6 +50,8 @@ namespace EventBus.Subscribe.Infrastructure
                 .ToDictionary(x => x.Key, x => x.GroupBy(y => y.Exchange)
                     .ToDictionary(y => y.Key, y => y.ToArray()));
 
+            _logger.LogInformation($"subscribe infos {subscribeInfos.ToJson()}");
+
             var clients = new List<ISubscribeClient>();
             var connectfactoryAccessor = _serviceProvider.GetRequiredService<IConnectionFactoryAccessor>();
             var rabbitOption = _serviceProvider.GetRequiredService<IOptions<RabbitOptions>>().Value;
@@ -55,7 +62,8 @@ namespace EventBus.Subscribe.Infrastructure
                 {
                     var exchange = string.IsNullOrEmpty(exchangeGroupedItems.Key) ? rabbitOption.DefaultExchangeName : exchangeGroupedItems.Key;
 
-                    var client = new DefaultSubscribeClient(connectfactoryAccessor
+                    var client = new DefaultSubscribeClient( _serviceProvider
+                        , connectfactoryAccessor
                         , rabbitOption
                         , queueGroupedItems.Key
                         , exchange);
@@ -77,7 +85,18 @@ namespace EventBus.Subscribe.Infrastructure
         {
             client.OnReceive = (MessageContext context) =>
             {
-                var msg = _messageDecoder.Decode(context);
+                Core.Internal.Model.ReceivedMessage msg = null;
+
+                try
+                {
+                    msg = _messageDecoder.Decode(context);
+                }
+                catch(Exception ex)
+                {
+                    context.Reject(true);
+                    _logger.LogError(110, ex, $"fail to decode message from context {context.ToJson()}");
+                    return;
+                }
 
                 try
                 {
@@ -86,6 +105,7 @@ namespace EventBus.Subscribe.Infrastructure
                 catch
                 {
                     context.Reject(true);
+                    _logger.LogInformation($"fail to insert received message[requeue]: {msg.ToJson()}");
                     return;
                 }
 
@@ -95,31 +115,40 @@ namespace EventBus.Subscribe.Infrastructure
                     var invoker = new DefaultConsumerInvoker(_serviceProvider, context);
                     result = invoker.InvokeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
+                    _logger.LogInformation($"invoke result: {result} message: {msg.ToJson()}");
+
                     try
                     {
                         _receivedEventPersistenter.ChangeStateAsync(msg.MessageId, msg.TransactId, msg.Group, Core.State.MessageState.Succeeded);
                     }
-                    catch
+                    catch(Exception ex)
                     {
-
+                        _logger.LogError(110, ex, $"fail to update received message[ignore]: {msg.ToJson()}");
                     }
+                }
+                catch(Exception ex)
+                {
+                    _logger.LogError(110, ex, $"catch invoke exception, receive message: {msg.ToJson()}");
                 }
                 finally
                 {
                     if (result)
                     {
                         context.Ack();
+                        _logger.LogInformation($"ack message {msg.ToJson()}");
                     }
                     else
                     {
                         context.Reject();
+                        _logger.LogInformation($"reject message {msg.ToJson()}");
+
                         try
                         {
                             _receivedEventPersistenter.ChangeStateAsync(msg.MessageId, msg.TransactId, msg.Group, Core.State.MessageState.Failed);
                         }
-                        catch
+                        catch(Exception ex)
                         {
-
+                            _logger.LogError(110, ex, $"fail to update received message[ignore]: {msg.ToJson()}");
                         }
                     }
                 }

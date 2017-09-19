@@ -1,9 +1,12 @@
 ﻿using EventBus.Core;
 using EventBus.Core.Infrastructure;
+using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
+using EventBus.Core.Extensions;
 
 namespace EventBus.Subscribe.Infrastructure
 {
@@ -12,21 +15,27 @@ namespace EventBus.Subscribe.Infrastructure
         private IConnection Connection;
         private IModel Channel;
         private readonly IConnectionFactoryAccessor _connectionFactoryAccessor;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<DefaultSubscribeClient> _logger;
         private readonly RabbitOptions _rabbitOptions;
         private readonly string _group;
         private readonly string _exchange;
 
         public Action<MessageContext> OnReceive { get; set; }
 
-        public DefaultSubscribeClient(IConnectionFactoryAccessor connectionFactoryAccessor
+        public DefaultSubscribeClient( IServiceProvider serviceProvider
+            , IConnectionFactoryAccessor connectionFactoryAccessor
             , RabbitOptions rabbitOptions
             , string group
             , string exchange)
         {
+            _serviceProvider = serviceProvider;
             _connectionFactoryAccessor = connectionFactoryAccessor;
             _rabbitOptions = rabbitOptions;
             _group = group;
             _exchange = exchange;
+
+            _logger = _serviceProvider.GetService<ILogger<DefaultSubscribeClient>>();
         }
 
         private void EnsureChannel()
@@ -55,7 +64,7 @@ namespace EventBus.Subscribe.Infrastructure
         private void EnsureConnection()
         {
             if (Connection != null) return;
-
+            
             var factory = _connectionFactoryAccessor.ConnectionFactory;
             Connection = factory.CreateConnection();
         }
@@ -63,6 +72,8 @@ namespace EventBus.Subscribe.Infrastructure
         public void Subscribe(string[] topics)
         {
             if (topics == null) throw new ArgumentNullException(nameof(topics));
+
+            _logger.LogInformation($"subscribe topics {topics.ToJson()}");
 
             EnsureChannel();
 
@@ -98,6 +109,9 @@ namespace EventBus.Subscribe.Infrastructure
                 Channel = Channel,
                 Content = e.Body
             };
+
+            _logger.LogInformation($"receive messages {context.ToJson()}");
+
             OnReceive?.Invoke(context);
         }
     }
