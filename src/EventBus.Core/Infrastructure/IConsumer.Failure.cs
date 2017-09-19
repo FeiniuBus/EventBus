@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using EventBus.Core.Internal;
+using Microsoft.Extensions.Logging;
+using EventBus.Core.Extensions;
 
 namespace EventBus.Core.Infrastructure
 {
@@ -12,12 +14,15 @@ namespace EventBus.Core.Infrastructure
         private readonly IList<IDisposable> _disposables;
         private readonly IServiceProvider _serviceProvider;
         private readonly FailureHandleOptions _subscribeOptions;
+        private readonly ILogger<FailureConsumer> _logger;
 
-        public FailureConsumer(IServiceProvider serviceProvider)
+        public FailureConsumer(IServiceProvider serviceProvider
+            , ILogger<FailureConsumer> logger)
         {
             _disposables = new List<IDisposable>();
             _serviceProvider = serviceProvider;
             _subscribeOptions = _serviceProvider.GetService<FailureHandleOptions>();
+            _logger = logger;
         }
 
         public void Start()
@@ -38,6 +43,8 @@ namespace EventBus.Core.Infrastructure
                 .ToDictionary(x => x.Key, x => x.GroupBy(y => y.Exchange)
                     .ToDictionary(y => y.Key, y => y.ToArray()));
 
+            _logger.LogInformation($"deadletter subscribeinfos {subscribeInfos.ToJson()}");
+
             var clients = new List<IClient>();
             var connectfactoryAccessor = _serviceProvider.GetRequiredService<IConnectionFactoryAccessor>();
             var rabbitOption = _serviceProvider.GetRequiredService<IOptions<RabbitOptions>>().Value;
@@ -48,7 +55,8 @@ namespace EventBus.Core.Infrastructure
                 {
                     var exchange = string.IsNullOrEmpty(exchangeGroupedItems.Key) ? rabbitOption.DefaultExchangeName : exchangeGroupedItems.Key;
 
-                    var client = new FailureClient(connectfactoryAccessor
+                    var client = new FailureClient( _serviceProvider
+                        , connectfactoryAccessor
                         , rabbitOption
                         , queueGroupedItems.Key
                         , exchange);
@@ -76,15 +84,21 @@ namespace EventBus.Core.Infrastructure
                     var invoker = new FailureInvoker(_serviceProvider, context);
                     result = invoker.InvokeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
                 }
+                catch (Exception ex)
+                {
+                    _logger.LogError(110, ex, $"invoke deadletter fail: {context.ToJson()}");
+                }
                 finally
                 {
                     if (result)
                     {
                         context.Ack();
+                        _logger.LogInformation($"ack deadletter message {context.ToJson()}");
                     }
                     else
                     {
                         context.Reject();
+                        _logger.LogInformation($"reject deadletter message {context.ToJson()}");
                     }
                 }
             };

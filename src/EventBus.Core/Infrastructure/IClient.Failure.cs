@@ -1,8 +1,10 @@
-﻿using RabbitMQ.Client;
+﻿using Microsoft.Extensions.Logging;
+using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using Microsoft.Extensions.DependencyInjection;
+using EventBus.Core.Extensions;
 
 namespace EventBus.Core.Infrastructure
 {
@@ -11,21 +13,27 @@ namespace EventBus.Core.Infrastructure
         private IConnection Connection;
         private IModel Channel;
         private readonly IConnectionFactoryAccessor _connectionFactoryAccessor;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<FailureClient> _logger;
         private readonly RabbitOptions _rabbitOptions;
         private readonly string _group;
         private readonly string _exchange;
 
         public Action<MessageContext> OnReceive { get; set; }
 
-        public FailureClient(IConnectionFactoryAccessor connectionFactoryAccessor
+        public FailureClient( IServiceProvider serviceProvider
+            , IConnectionFactoryAccessor connectionFactoryAccessor
             , RabbitOptions rabbitOptions
             , string group
             , string exchange)
         {
+            _serviceProvider = serviceProvider;
             _connectionFactoryAccessor = connectionFactoryAccessor;
             _rabbitOptions = rabbitOptions;
             _group = group;
             _exchange = exchange;
+
+            _logger = _serviceProvider.GetService<ILogger<FailureClient>>();
         }
 
         private void EnsureChannel()
@@ -35,12 +43,15 @@ namespace EventBus.Core.Infrastructure
             Channel = Connection.CreateModel();
 
             Channel.ExchangeDeclare(_exchange, "topic", true);
-            //Channel.ExchangeDeclare(_rabbitOptions.DefaultDeadLetterExchange, "topic", true);
+            Channel.ExchangeDeclare(_rabbitOptions.DefaultFinalDeadLetterExchange, "topic", true, false, new Dictionary<string, object>
+            {
+                ["x-message-ttl"] = _rabbitOptions.QueueMessageExpires,
+            });
 
             var args = new Dictionary<string, object>
             {
                 ["x-message-ttl"] = _rabbitOptions.QueueMessageExpires,
-                //["x-dead-letter-exchange"] = _rabbitOptions.DefaultDeadLetterExchange,
+                ["x-dead-letter-exchange"] = _rabbitOptions.DefaultFinalDeadLetterExchange,
             };
 
             Channel.QueueDeclare(
@@ -62,6 +73,8 @@ namespace EventBus.Core.Infrastructure
         public void Subscribe(string[] topics)
         {
             if (topics == null) throw new ArgumentNullException(nameof(topics));
+
+            _logger.LogInformation($"failure callback topics {topics.ToJson()}");
 
             EnsureChannel();
 
@@ -98,6 +111,9 @@ namespace EventBus.Core.Infrastructure
                 Content = e.Body,
                 Args = e
             };
+
+            _logger.LogInformation($"failure context: {context.ToJson()}");
+
             OnReceive?.Invoke(context);
         }
     }

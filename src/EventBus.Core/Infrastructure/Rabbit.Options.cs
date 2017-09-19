@@ -19,5 +19,7 @@ namespace EventBus.Core.Infrastructure
         public int QueueMessageExpires { get; set; } = 864000000;
 
         public string DefaultDeadLetterExchange { get; set; } = "deadletter.exchange@feiniubus";
+
+        public string DefaultFinalDeadLetterExchange { get; set; } = "final.deadletter.exchange@feiniubus";
     }
 }
