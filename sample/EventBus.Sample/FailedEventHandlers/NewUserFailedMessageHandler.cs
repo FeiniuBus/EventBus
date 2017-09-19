@@ -14,7 +14,7 @@ namespace EventBus.Sample.FailedEventHandlers
 
         public Task<bool> HandleAsync(string message)
         {
-            return Task.FromResult(true);
+            return Task.FromResult(false);
         }
     }
 }
