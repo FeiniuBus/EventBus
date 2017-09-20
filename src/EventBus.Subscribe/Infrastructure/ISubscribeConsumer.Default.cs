@@ -98,7 +98,7 @@ namespace EventBus.Subscribe.Infrastructure
                 catch(Exception ex)
                 {
                     context.Reject(true);
-                    _logger.LogError(110, ex, $"fail to decode message from context {context.ToJson()}");
+                    _logger.DecodeError(context, ex);
                     return;
                 }
 
@@ -106,17 +106,25 @@ namespace EventBus.Subscribe.Infrastructure
                 {
                     _receivedEventPersistenter.InsertAsync(msg);
                 }
-                catch
+                catch(Exception e)
                 {
                     context.Reject(true);
-                    _logger.LogInformation($"fail to insert received message[requeue]: {msg.ToJson()}");
+                    _logger.ReceivedEventPersistenterInsert(msg, e);
                     return;
                 }
 
                 bool result = false;
+                DefaultConsumerInvoker invoker = null;
                 try
                 {
-                    var invoker = new DefaultConsumerInvoker(_serviceProvider, context);
+                    invoker = new DefaultConsumerInvoker(_serviceProvider, context);
+                }
+                catch(Exception e)
+                {
+                    _logger.CreateDefaultConsumerInvoker(context, e);
+                }
+                try
+                {
                     result = invoker.InvokeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
                     _logger.LogInformation($"invoke result: {result} message: {msg.ToJson()}");
@@ -127,12 +135,12 @@ namespace EventBus.Subscribe.Infrastructure
                     }
                     catch(Exception ex)
                     {
-                        _logger.LogError(110, ex, $"fail to update received message[ignore]: {msg.ToJson()}");
+                        _logger.UpdateReceivedMessage(msg, ex);
                     }
                 }
                 catch(Exception ex)
                 {
-                    _logger.LogError(110, ex, $"catch invoke exception, receive message: {msg.ToJson()}");
+                    _logger.InvokeConsumer(context, msg, ex);
                 }
                 finally
                 {
