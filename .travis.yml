@@ -14,3 +14,8 @@ os:
 script:
   - if test "$TRAVIS_OS_NAME" == "linux"; then dotnet restore -r ubuntu.14.04-x64; fi
   - dotnet build -c Release
+  - cd $TEST_PATH
+  - dotnet add ./$TEST_PROJECT package xunit.runner.console --version 2.3.0-beta5-build3769
+  - dotnet restore ./$TEST_PROJECT -r ubuntu.14.04-x64
+  - dotnet build ./$TEST_PROJECT -c Release
+  - dotnet test ./$TEST_PROJECT
