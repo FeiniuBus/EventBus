@@ -34,12 +34,12 @@ namespace EventBus.Publish.Sample
             // Add framework services.
             services.AddMvc();
 
-            services.AddDbContext<SampleDbContext>(options => options.UseMySql(ConnectionString));
+            //services.AddDbContext<SampleDbContext>(options => options.UseMySql(ConnectionString));
 
             services.AddEventBus(options =>
             {
-                options.UseEntityframework<SampleDbContext>();
-                //options.UseMySQL();
+                //options.UseEntityframework<SampleDbContext>();
+                options.UseMySQL(ConnectionString);
                 options.UseRabbitMQ(rabbit =>
                 {
                     rabbit.HostName = "192.168.206.128";

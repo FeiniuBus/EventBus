@@ -39,7 +39,7 @@ namespace EventBus.Publish.Sample.Controllers
         {
                 using (var transaction = await _sampleDbContext.Database.BeginTransactionAsync())
                 {
-                    await _eventPublisher.PrepareAsync("test", new { value }, new { signature = "" });
+                    await _eventPublisher.PrepareAsync("test", value, new { signature = "" });
                     transaction.Commit();
                 }
                 await _eventPublisher.ConfirmAsync();
