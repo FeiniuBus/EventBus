@@ -40,7 +40,10 @@ namespace EventBus.Sample
                 options.UseEntityframework<SampleDbContext>();
                 options.UseRabbitMQ(rabbit =>
                 {
-                    rabbit.HostName = "localhost";
+                    rabbit.HostName = "office.feelbus.cn";
+                    rabbit.Password = "rabbitmq@feiniubus";
+                    rabbit.UserName = "dev";
+                    rabbit.Port = 5672;
                 });
 
                 options.UseFailureHandle(failure =>
@@ -52,7 +55,7 @@ namespace EventBus.Sample
 
             services.AddSub(options =>
             {
-                options.ConsumerClientCount = 1;
+                options.ConsumerClientCount = 5;
                 options.DefaultGroup = "eventbus.testgroup";
 
                 options.RegisterCallback("eventbus.testtopic", typeof(NewUserEventHandler));

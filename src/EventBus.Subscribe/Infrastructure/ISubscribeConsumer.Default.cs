@@ -61,21 +61,24 @@ namespace EventBus.Subscribe.Infrastructure
             {
                 foreach(var exchangeGroupedItems in queueGroupedItems.Value)
                 {
-                    var exchange = string.IsNullOrEmpty(exchangeGroupedItems.Key) ? rabbitOption.DefaultExchangeName : exchangeGroupedItems.Key;
+                    for(var i = 0; i < _subscribeOptions.ConsumerClientCount; ++i)
+                    {
+                        var exchange = string.IsNullOrEmpty(exchangeGroupedItems.Key) ? rabbitOption.DefaultExchangeName : exchangeGroupedItems.Key;
 
-                    var client = new DefaultSubscribeClient( _serviceProvider
-                        , connectfactoryAccessor
-                        , rabbitOption
-                        , queueGroupedItems.Key
-                        , exchange);
+                        var client = new DefaultSubscribeClient(_serviceProvider
+                            , connectfactoryAccessor
+                            , rabbitOption
+                            , queueGroupedItems.Key
+                            , exchange);
 
-                    _disposables.Add(client);
-                    RegisterClient(client);
+                        _disposables.Add(client);
+                        RegisterClient(client);
 
-                    var topics = exchangeGroupedItems.Value.Select(x => x.Topic).ToArray();
-                    client.Subscribe(topics);
+                        var topics = exchangeGroupedItems.Value.Select(x => x.Topic).ToArray();
+                        client.Subscribe(topics);
 
-                    client.Listening();
+                        client.Listening();
+                    }
                 }
             }
 
