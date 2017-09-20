@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EventBus.Subscribe.Infrastructure
 {
@@ -149,6 +150,19 @@ namespace EventBus.Subscribe.Infrastructure
                         catch(Exception ex)
                         {
                             _logger.LogError(110, ex, $"fail to update received message[ignore]: {msg.ToJson()}");
+                        }
+
+                        try
+                        {
+                            var subFailureHandlers = _serviceProvider.GetServices<ISubFailureHandler>().ToArray();
+                            if (subFailureHandlers.Any())
+                            {
+                                Task.WhenAll(subFailureHandlers.Select(x => x.HandleAsync(context))).ConfigureAwait(false).GetAwaiter().GetResult();
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(110, ex, $"SubFailureHandler调用失败");
                         }
                     }
                 }
