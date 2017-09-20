@@ -1,5 +1,8 @@
 ﻿using EventBus.Core;
+using Microsoft.Extensions.DependencyInjection;
 using RabbitMQ.Client;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EventBus.Publish
@@ -9,13 +12,16 @@ namespace EventBus.Publish
         private readonly IConnection _connection;
         private readonly IModel _channel;
         private readonly IConnectionFactoryAccessor _connectionFactoryAccessor;
+        private readonly IServiceProvider _serviceProvider;
 
-        public MessageQueueTransaction(IConnectionFactoryAccessor connectionFactoryAccessor)
+        public MessageQueueTransaction(IConnectionFactoryAccessor connectionFactoryAccessor
+            , IServiceProvider serviceProvider)
         {
             _connectionFactoryAccessor = connectionFactoryAccessor;
             _connection = _connectionFactoryAccessor.ConnectionFactory.CreateConnection();
             _channel = _connection.CreateModel();
             _channel.TxSelect();
+            _serviceProvider = serviceProvider;
         }
 
         public Task CommitAsync()
@@ -29,18 +35,44 @@ namespace EventBus.Publish
             _channel.Dispose();
         }
 
-        public Task PublishAsync(string exchange, string routingKey, byte[] body)
+        public async Task PublishAsync(string exchange, string routingKey, byte[] body)
         {
-            _channel.ExchangeDeclare(exchange, "topic", true, false, null);
+            try
+            {
+                _channel.ExchangeDeclare(exchange, "topic", true, false, null);
+                _channel.BasicPublish(exchange, routingKey, null, body);
+            }
+            catch
+            {
+                try
+                {
+                   await HandleFailureAsync(exchange, routingKey, body);
+                }
+                catch
+                {
 
-            _channel.BasicPublish(exchange, routingKey, null, body);
-            return Task.CompletedTask;
+                }
+            }
         }
 
         public Task RollbackAsync()
         {
             _channel.TxRollback();
             return Task.CompletedTask;
+        }
+
+        private async Task HandleFailureAsync(string exchange, string topic, byte[] content)
+        {
+            var handlers = _serviceProvider.GetServices<IPubFailureHandler>();
+            if (!handlers.Any())
+            {
+                return;
+            }
+
+            foreach(var handler in handlers)
+            {
+                await handler.HandleAsync(exchange, topic, content);
+            }
         }
     }
 }

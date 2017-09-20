@@ -6,6 +6,8 @@ namespace EventBus.Alert
 {
     public interface ILastAlertMemento
     {
-        DateTime LastAlert { get; set; }
+        DateTime LastPubAlert { get; set; }
+
+        DateTime LastSubAlert { get; set; }
     }
 }

@@ -4,6 +4,8 @@ namespace EventBus.Alert
 {
     public class DefaultLastAlertMemento : ILastAlertMemento
     {
-        public DateTime LastAlert { get; set; }
+        public DateTime LastPubAlert { get; set; }
+
+        public DateTime LastSubAlert { get; set; }
     }
 }

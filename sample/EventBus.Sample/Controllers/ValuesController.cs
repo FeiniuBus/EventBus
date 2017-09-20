@@ -19,11 +19,11 @@ namespace EventBus.Sample.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]string value)
         {
-            using (var transaction = await _sampleDbContext.Database.BeginTransactionAsync())
-            {
-                await _eventPublisher.PrepareAsync("eventbus.testtopic", new { value }, new { signature = "" });
-                transaction.Commit();
-            }
+            var transaction = await _sampleDbContext.Database.BeginTransactionAsync();
+
+            await _eventPublisher.PrepareAsync("eventbus.testtopic", "Hello-World", new { signature = "" });
+            transaction.Commit();
+
             await _eventPublisher.ConfirmAsync();
 
             return Ok();

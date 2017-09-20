@@ -1,24 +1,24 @@
-﻿using System.Threading.Tasks;
-using EventBus.Core;
+﻿using EventBus.Core;
+using FeiniuBusSDK.Notification;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using FeiniuBusSDK.Notification;
 using System.Linq;
-using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace EventBus.Alert
 {
-    public class DefaultAlertHandler : ISubFailureHandler
+    public class DefaultPubAlertHandler : IPubFailureHandler
     {
         private readonly SMSAlertOptions _options;
         private readonly ILastAlertMemento _memento;
         private readonly IFeiniuBusNotification _feiniuBusNotification;
-        private readonly ILogger<DefaultAlertHandler> _logger;
+        private readonly ILogger<DefaultPubAlertHandler> _logger;
 
-        public DefaultAlertHandler(IOptions<SMSAlertOptions> optionsAccessor
+        public DefaultPubAlertHandler(IOptions<SMSAlertOptions> optionsAccessor
             , ILastAlertMemento memento
             , IFeiniuBusNotification feiniuBusNotification
-            , ILogger<DefaultAlertHandler> logger)
+            , ILogger<DefaultPubAlertHandler> logger)
         {
             _options = optionsAccessor.Value;
             _memento = memento;
@@ -26,7 +26,7 @@ namespace EventBus.Alert
             _logger = logger;
         }
 
-        public async Task HandleAsync(MessageContext context)
+        public async Task HandleAsync(string exchange, string topic, byte[] content)
         {
             if (!_options.Enable)
             {
@@ -40,17 +40,17 @@ namespace EventBus.Alert
 
             var now = DateTime.Now;
 
-            if ((now - _memento.LastAlert).TotalSeconds < _options.AlertIntervalSecs)
+            if ((now - _memento.LastSubAlert).TotalSeconds < _options.AlertIntervalSecs)
             {
                 return;
             }
 
-            _memento.LastAlert = now;
+            _memento.LastSubAlert = now;
 
             var request = new FeiniuBusSDK.Notification.Model.CreateSmsRequest
             {
                 Numbers = _options.Contacts,
-                Message = CreateMessage(context)
+                Message = CreateMessage(exchange, topic, content)
             };
 
             try
@@ -63,9 +63,9 @@ namespace EventBus.Alert
             }
         }
 
-        private static string CreateMessage(MessageContext context)
+        private static string CreateMessage(string exchange, string topic, byte[] content)
         {
-            return $"你以{context.Queue}订阅的主题{context.Topic}处理失败，请即时处理。";
+            return $"你的主题{topic}发送失败，请及时处理。";
         }
     }
 }
