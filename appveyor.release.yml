@@ -7,7 +7,6 @@ environment:
 
 install:
   # Download .NET Core 2.0 SDK and add to PATH
-  - ps: $OutputPath1 = Resolve-Path /.build/*.nuget
   - ps: $urlCurrent = "https://dotnetcli.azureedge.net/dotnet/Sdk/2.0.0/dotnet-sdk-2.0.0-win-x64.zip"
   - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
   - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
@@ -21,6 +20,7 @@ install:
   - ps: (New-Object System.Net.WebClient).DownloadFile($nugetUrl, $nugetFileName)
   - ps: $publishOutDir = "/.build"
   - ps: mkdir $publishOutDir
+  - ps: $OutputPath1 = Resolve-Path /.build/*.nuget
 
 init:
   - git config --global core.autocrlf true
