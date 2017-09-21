@@ -28,7 +28,7 @@ build_script:
   - dotnet restore
   - dotnet build -c Release
   - dotnet pack -c Release -o "/.build"
-  - ps: /.nuget/nuget.exe push /.build/*.nupkg $env:NUGET_API_KEY -Source $env:NUGET_SOURCE
+  - ps: /.nuget/nuget.exe push C:/.build/*.nupkg $env:NUGET_API_KEY -Source $env:NUGET_SOURCE
   
 clone_depth: 1
 test: off
