@@ -18,7 +18,8 @@ install:
   - ps: mkdir /.nuget
   - ps: $nugetFileName = "/.nuget/nuget.exe"
   - ps: (New-Object System.Net.WebClient).DownloadFile($nugetUrl, $nugetFileName)
-  - ps: /.nuget/nuget.exe setapikey %NUGET_API_KEY% -Source %NUGET_SOURCE%
+  - ps: $publishOutDir = "/build"
+  - ps: mkdir $publishOutDir
 
 init:
   - git config --global core.autocrlf true
@@ -26,7 +27,11 @@ build_script:
   - dotnet --version
   - dotnet restore
   - dotnet build -c Release
-  - dotnet pack -c Release
-
+  - ps: dotnet pack -c Release -o "/build"
+  - ps: $OutputPath = Resolve-Path /build
+  - ps: cd $OutputPath
+  - ps: dir
+  - ps: /.nuget/nuget.exe push $OutputPath\*.nupkg $env:NUGET_API_KEY -Source $env:NUGET_SOURCE
+  
 clone_depth: 1
 test: off
