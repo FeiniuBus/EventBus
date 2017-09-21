@@ -30,7 +30,9 @@ build_script:
   - dotnet build -c Release
   - ps: dotnet pack -c Release -o "/.build"
   - ps: $OutputPath = Resolve-Path /.build
-  - ps: /.nuget/nuget.exe push $OutputPath/*.nuget $env:NUGET_API_KEY -Source $env:NUGET_SOURCE
+  - ps: cd $OutputPath
+  - ps: dir
+  - ps: /.nuget/nuget.exe push $OutputPath\*.nuget $env:NUGET_API_KEY -Source $env:NUGET_SOURCE
   
 clone_depth: 1
 test: off
