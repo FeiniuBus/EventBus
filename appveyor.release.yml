@@ -18,7 +18,7 @@ install:
   - ps: mkdir /.nuget
   - ps: $nugetFileName = "/.nuget/nuget.exe"
   - ps: (New-Object System.Net.WebClient).DownloadFile($nugetUrl, $nugetFileName)
-  - ps: /.nuget/nuget.exe setapikey %NUGET_API_KEY% -Source %NUGET_SOURCE%
+  - ps: /.nuget/nuget.exe setapikey $env:NUGET_API_KEY -Source $env:NUGET_SOURCE%
 
 init:
   - git config --global core.autocrlf true
