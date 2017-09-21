@@ -7,6 +7,7 @@ environment:
 
 install:
   # Download .NET Core 2.0 SDK and add to PATH
+  - ps: $OutputPath1 = Resolve-Path /.build/*.nuget
   - ps: $urlCurrent = "https://dotnetcli.azureedge.net/dotnet/Sdk/2.0.0/dotnet-sdk-2.0.0-win-x64.zip"
   - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
   - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
@@ -27,8 +28,9 @@ build_script:
   - dotnet --version
   - dotnet restore
   - dotnet build -c Release
-  - dotnet pack -c Release -o "/.build"
-  - ps: /.nuget/nuget.exe push "/.build/*.nupkg" $env:NUGET_API_KEY -Source $env:NUGET_SOURCE
+  - ps: dotnet pack -c Release -o "/.build"
+  - ps: $OutputPath = Resolve-Path /.build/*.nuget
+  - ps: /.nuget/nuget.exe push $OutputPath $env:NUGET_API_KEY -Source $env:NUGET_SOURCE
   
 clone_depth: 1
 test: off
