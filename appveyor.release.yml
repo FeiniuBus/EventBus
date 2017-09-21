@@ -30,7 +30,7 @@ build_script:
   - dotnet build -c Release
   - dotnet pack -c Release -o "/.build"
   - ps: $pkgs = Get-ChildItem /.build -Include *.nupkg
-  - ps: foreach($pkg in $pkgs){ /.nuget/nuget.exe push $pkg $env:NUGET_API_KEY -Source $env:NUGET_SOURCE }
+  - ps: foreach($pkg in $pkgs){ echo $pkg && /.nuget/nuget.exe push $pkg $env:NUGET_API_KEY -Source $env:NUGET_SOURCE }
   
 clone_depth: 1
 test: off
