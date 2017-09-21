@@ -14,8 +14,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FeiniuBus.Puid" Version="3.0.0" />
+    <PackageReference Include="FeiniuBusSDK.Core" Version="2.0.0" />
     <PackageReference Include="JetBrains.Annotations" Version="11.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="RabbitMQ.Client" Version="5.0.1" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
   </ItemGroup>

@@ -9,7 +9,7 @@ namespace EventBus.Core.Infrastructure
         public T Deserialize<T>(byte[] message)
         {
             var jsonStr = Encoding.UTF8.GetString(message);
-            return JsonConvert.DeserializeObject<T>(jsonStr);
+            return FeiniuBus.Util.FeiniuBusJsonConvert.DeserializeObject<T>(jsonStr);
         }
 
         public byte[] Serialize(object message)
@@ -21,7 +21,7 @@ namespace EventBus.Core.Infrastructure
             }
             else
             {
-                jsonStr = JsonConvert.SerializeObject(message);
+                jsonStr = FeiniuBus.Util.FeiniuBusJsonConvert.SerializeObject(message);
             }
             return Encoding.UTF8.GetBytes(jsonStr);
         }

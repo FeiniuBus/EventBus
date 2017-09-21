@@ -7,7 +7,7 @@ namespace EventBus.Core.Extensions
     {
         public static string ToJson(this IMetaData metaData)
         {
-            return JsonConvert.SerializeObject(metaData.GetDictionary());
+            return FeiniuBus.Util.FeiniuBusJsonConvert.SerializeObject(metaData.GetDictionary());
         }
 
         public static IMetaData Union(this IMetaData metaData, IMetaData source)

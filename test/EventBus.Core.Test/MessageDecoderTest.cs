@@ -32,7 +32,7 @@ namespace EventBus.Core.Test
             metaData.Set("TransactID", message.TransactId.ToString());
             metaData.Set("MessageID", message.MessageId.ToString());
 
-            var jsonTransafer = JsonConvert.SerializeObject(new { MetaData = metaData.GetDictionary(), Content = "HelloWorld" });
+            var jsonTransafer = FeiniuBus.Util.FeiniuBusJsonConvert.SerializeObject(new { MetaData = metaData.GetDictionary(), Content = "HelloWorld" });
             var bytes = Encoding.UTF8.GetBytes(jsonTransafer);
 
             var context = new MessageContext

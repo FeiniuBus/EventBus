@@ -90,7 +90,7 @@ namespace EventBus.Publish
             message.MetaData = metaData.ToJson();
 
             await _publishedEventPersistenter.InsertAsync(message, dbConnection, dbTransaction);
-            var jsonTransafer = JsonConvert.SerializeObject(new { MetaData = metaData.GetDictionary(), Content = descriptor.Message.Content });
+            var jsonTransafer = FeiniuBus.Util.FeiniuBusJsonConvert.SerializeObject(new { MetaData = metaData.GetDictionary(), Content = descriptor.Message.Content });
             await _messageQueueTransaction.PublishAsync(descriptor.Exchange, descriptor.RouteKey, Encoding.UTF8.GetBytes(jsonTransafer));
         }
 
