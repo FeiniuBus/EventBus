@@ -97,7 +97,7 @@ using(var transaction = dbContext.Database.BeginTransaction)
  
  
 ### Step 4 : Consumer callback handler
-* Declare a callback handler class implemented `ISubscribeCallbackHandler`
+* Declare a callback handler class implemented `ISubscribeHandler`
 * Register callback handle in `StartUp.cs`
 ```csharp
 services.AddSub(options =>
