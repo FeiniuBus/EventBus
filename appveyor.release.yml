@@ -31,7 +31,7 @@ build_script:
   - ps: $OutputPath = Resolve-Path /build
   - ps: cd $OutputPath
   - ps: dir
-  - ps: /.nuget/nuget.exe push $OutputPath\*.nuget $env:NUGET_API_KEY -Source $env:NUGET_SOURCE
+  - ps: /.nuget/nuget.exe push $OutputPath\*.nupkg $env:NUGET_API_KEY -Source $env:NUGET_SOURCE
   
 clone_depth: 1
 test: off
