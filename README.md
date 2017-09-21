@@ -1,6 +1,9 @@
 # EventBus
-[![Build status](https://ci.appveyor.com/api/projects/status/42jeqj0h28pdoc3x/branch/master?svg=true)](https://ci.appveyor.com/project/Jamesxql/eventbus/branch/master)
-[![Build Status](https://travis-ci.org/FeiniuBus/EventBus.svg?branch=master)](https://travis-ci.org/FeiniuBus/EventBus)
+ Branch | Pipeline 
+----|----
+ master | [![Build status](https://ci.appveyor.com/api/projects/status/42jeqj0h28pdoc3x/branch/master?svg=true)](https://ci.appveyor.com/project/Jamesxql/eventbus/branch/master)[![Build Status](https://travis-ci.org/FeiniuBus/EventBus.svg?branch=master)](https://travis-ci.org/FeiniuBus/EventBus)
+ release | [![Build status](https://ci.appveyor.com/api/projects/status/42jeqj0h28pdoc3x/branch/release?svg=true)](https://ci.appveyor.com/project/Jamesxql/eventbus/branch/release)[![Build status](https://ci.appveyor.com/api/projects/status/4bfohsc2n3gfd08i?svg=true)](https://ci.appveyor.com/project/standardcore/eventbus)
+ milestone/1.0.0 | [![Build status](https://ci.appveyor.com/api/projects/status/42jeqj0h28pdoc3x/branch/milestone/1.0.0?svg=true)](https://ci.appveyor.com/project/Jamesxql/eventbus/branch/milestone/1.0.0)[![Build Status](https://travis-ci.org/FeiniuBus/EventBus.svg?branch=milestone%2F1.0.0)](https://travis-ci.org/FeiniuBus/EventBus)
 
 ## OverView
 EventBus is a .Net Standard library to achieve eventually consistent in distributed architectures system like SOA,MicroService. It is lightweight,easy to use and efficiently.
