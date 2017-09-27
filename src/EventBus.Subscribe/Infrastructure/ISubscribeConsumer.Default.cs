@@ -55,7 +55,7 @@ namespace EventBus.Subscribe.Infrastructure
 
             var clients = new List<ISubscribeClient>();
             var connectfactoryAccessor = _serviceProvider.GetRequiredService<IConnectionFactoryAccessor>();
-            var rabbitOption = _serviceProvider.GetRequiredService<IOptions<RabbitOptions>>().Value;
+            var rabbitOption = _serviceProvider.GetRequiredService<RabbitOptions>();
 
             foreach(var queueGroupedItems in groupedInfos)
             {

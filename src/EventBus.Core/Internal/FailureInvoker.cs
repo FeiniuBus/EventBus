@@ -67,10 +67,10 @@ namespace EventBus.Core.Internal
             var xDeath = Context.Args.BasicProperties.Headers["x-death"];
             var json = FeiniuBus.Util.FeiniuBusJsonConvert.SerializeObject(xDeath);
             var jarray = JArray.Parse(json);
-            var jbytes = (jarray[0]["queue"]).ToObject<byte[]>();
+            var jstr = (jarray[0]["queue"]).ToObject<string>();
             accessor.FailureContext = new FailureContext
             {
-                FailureGroup = Encoding.UTF8.GetString(jbytes)
+                FailureGroup = jstr
             };
         }
 
