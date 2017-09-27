@@ -13,6 +13,7 @@ namespace EventBus.Publish
         private readonly IModel _channel;
         private readonly IConnectionFactoryAccessor _connectionFactoryAccessor;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IEnviromentNameConcator _exchangeNameUpdator;
 
         public MessageQueueTransaction(IConnectionFactoryAccessor connectionFactoryAccessor
             , IServiceProvider serviceProvider)
@@ -22,6 +23,8 @@ namespace EventBus.Publish
             _channel = _connection.CreateModel();
             _channel.TxSelect();
             _serviceProvider = serviceProvider;
+
+            _exchangeNameUpdator = _serviceProvider.GetRequiredService<IEnviromentNameConcator>();
         }
 
         public Task CommitAsync()
@@ -37,8 +40,10 @@ namespace EventBus.Publish
 
         public async Task PublishAsync(string exchange, string routingKey, byte[] body)
         {
+            exchange = _exchangeNameUpdator.Concat(exchange);
             try
             {
+                var property = _channel.CreateBasicProperties();
                 _channel.ExchangeDeclare(exchange, "topic", true, false, null);
                 _channel.BasicPublish(exchange, routingKey, null, body);
             }

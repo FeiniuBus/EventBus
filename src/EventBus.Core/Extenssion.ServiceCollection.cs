@@ -18,6 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
             serviceCollection.AddSingleton<IBootstrapper, DefaultBootstrapper>();
             serviceCollection.TryAddTransient<IMessageDecoder, DefaultMessageDecoder>();
             serviceCollection.TryAddScoped<IFailureContextAccessor, DefaultFailureContextAccessor>();
+            serviceCollection.AddSingleton<IEnviromentNameConcator, DefaultEnviromentalNameUpdator>();
 
             foreach (var extension in options.Extensions)
             {

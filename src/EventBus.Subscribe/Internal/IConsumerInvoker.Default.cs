@@ -24,7 +24,7 @@ namespace EventBus.Subscribe.Internal
         {
             _serviceScope = serviceProvider.CreateScope();
             _serviceProvider = _serviceScope.ServiceProvider;
-            _subscribeOptions = _serviceProvider.GetRequiredService<IOptions<SubscribeOptions>>().Value;
+            _subscribeOptions = _serviceProvider.GetRequiredService<SubscribeOptions>();
             Context = context;
         }
 

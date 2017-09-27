@@ -24,12 +24,12 @@ namespace EventBus.Subscribe.Infrastructure
         public DefaultSubscribeConsumer(IServiceProvider serviceProvider
             , IReceivedEventPersistenter receivedEventPersistenter
             , IMessageDecoder messageDecoder
-            , IOptions<SubscribeOptions> subscribeOptionsAccessor
+            , SubscribeOptions options
             , ILogger<DefaultSubscribeConsumer> logger)
         {
             _disposables = new List<IDisposable>();
             _serviceProvider = serviceProvider;
-            _subscribeOptions = subscribeOptionsAccessor.Value;
+            _subscribeOptions = options;
             _receivedEventPersistenter = receivedEventPersistenter;
             _messageDecoder = messageDecoder;
             _logger = logger;

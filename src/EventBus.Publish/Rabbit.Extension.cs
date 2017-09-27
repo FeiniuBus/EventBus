@@ -19,6 +19,11 @@ namespace EventBus.Publish
             var options = new RabbitOptions();
             _configure(options);
 
+            var envConcator = serviceCollection.BuildServiceProvider().GetRequiredService<IEnviromentNameConcator>();
+            options.DefaultDeadLetterExchange = envConcator.Concat(options.DefaultDeadLetterExchange);
+            options.DefaultFinalDeadLetterExchange = envConcator.Concat(options.DefaultFinalDeadLetterExchange);
+            options.DefaultExchangeName = envConcator.Concat(options.DefaultExchangeName);
+
             serviceCollection.AddSingleton(options);
             serviceCollection.AddScoped<IMessageQueueTransaction, MessageQueueTransaction>();
         }

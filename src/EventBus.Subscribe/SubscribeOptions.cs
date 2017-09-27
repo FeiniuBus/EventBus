@@ -1,4 +1,6 @@
-﻿using EventBus.Core.Infrastructure;
+﻿using EventBus.Core;
+using EventBus.Core.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,36 +13,38 @@ namespace EventBus.Subscribe
 
         public int ConsumerClientCount { get; set; } = 1;
 
-        public string DefaultExchange => "default.exchange@feiniubus";
+        public IReadOnlyList<SubscribeInfo> SubscribeInfos { get; private set; }
 
-        public IList<SubscribeInfo> SubscribeInfos { get; } = new List<SubscribeInfo>();
+        private readonly IList<SubscribeInfo> _subscribeInfos;
+
+        public SubscribeOptions()
+        {
+            _subscribeInfos = new List<SubscribeInfo>();
+        }
 
         public void RegisterCallback(string topic, Type callbackType)
         {
-            if (SubscribeInfos.Any(x => x.Topic == topic && x.Group == DefaultGroup))
+            if (_subscribeInfos.Any(x => x.Topic == topic && x.Group == null))
             {
-                throw new InvalidOperationException($"Duplicated subscribe topic={topic} group={DefaultGroup}");
+                throw new InvalidOperationException($"Duplicated subscribe topic={topic}");
             }
 
-            SubscribeInfos.Add(new SubscribeInfo
+            _subscribeInfos.Add(new SubscribeInfo
             {
-                Exchange = DefaultExchange,
                 Topic = topic,
-                Group = DefaultGroup,
                 CallbackType = callbackType
             });
         }
 
         public void RegisterCallback(string topic, string group, Type callbackType)
         {
-            if (SubscribeInfos.Any(x => x.Topic == topic && x.Group == group))
+            if (_subscribeInfos.Any(x => x.Topic == topic && x.Group == group))
             {
                 throw new InvalidOperationException($"Duplicated subscribe topic={topic} group={group}");
             }
 
-            SubscribeInfos.Add(new SubscribeInfo
+            _subscribeInfos.Add(new SubscribeInfo
             {
-                Exchange = DefaultExchange,
                 Topic = topic,
                 Group = group,
                 CallbackType = callbackType
@@ -49,18 +53,37 @@ namespace EventBus.Subscribe
 
         public void RegisterCallback(string topic, string group, string exchange, Type callbackType)
         {
-            if (SubscribeInfos.Any(x => x.Topic == topic && x.Group == group))
+            if (_subscribeInfos.Any(x => x.Topic == topic && x.Group == group))
             {
                 throw new InvalidOperationException($"Duplicated subscribe topic={topic} group={group}");
             }
 
-            SubscribeInfos.Add(new SubscribeInfo
+            _subscribeInfos.Add(new SubscribeInfo
             {
                 Exchange = exchange,
                 Topic = topic,
                 Group = group,
                 CallbackType = callbackType
             });
+        }
+
+        public void Build(IServiceProvider serviceProvider)
+        {
+            var concator = serviceProvider.GetRequiredService<IEnviromentNameConcator>();
+            var rabbitOptions = serviceProvider.GetRequiredService<RabbitOptions>();
+
+            var defaultExchange = rabbitOptions.DefaultExchangeName;
+
+            foreach(var info in _subscribeInfos)
+            {
+                if (string.IsNullOrEmpty(info.Exchange))
+                {
+                    info.Exchange = concator.Concat(info.Exchange ?? defaultExchange);
+                    info.Group = concator.Concat(info.Group ?? DefaultGroup);
+                }
+            }
+
+            SubscribeInfos = new List<SubscribeInfo>(_subscribeInfos);
         }
     }
 }

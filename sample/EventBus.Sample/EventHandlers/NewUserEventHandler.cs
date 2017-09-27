@@ -1,7 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using EventBus.Subscribe;
-using Newtonsoft.Json.Linq;
 
 namespace EventBus.Sample.EventHandlers
 {
