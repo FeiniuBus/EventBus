@@ -171,7 +171,7 @@ namespace EventBus.Subscribe
             sql.AppendLine(@"WHERE");
             sql.AppendLine(whereClause);
 
-            sql.AppendLine($@"UPDATE `{TableName}`");
+            sql.AppendLine($@"UPDATE `{TableName}` SET");
             sql.AppendLine(@" `State` = @State");
             sql.AppendLine(@"WHERE");
             sql.AppendLine(whereClause);
