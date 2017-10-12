@@ -56,7 +56,7 @@ namespace EventBus.Core.Extensions
         private static void LogJson(ILogger logger, string message, object data)
         {
             if (logger == null) return;
-            logger.LogError(message, data.ToJson());
+            logger.LogError($"{message}---->{data.ToJson()}");
         }
 
         private static IEnumerable<string> GetErrorMessages(Exception e)
