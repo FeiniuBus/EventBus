@@ -18,7 +18,7 @@ namespace EventBus.Publish.Infrastructure
                 Password = RabbitOptions.Password,
                 VirtualHost = RabbitOptions.VirtualHost,
                 HostName = RabbitOptions.HostName,
-                Port = RabbitOptions.Port
+                Port = RabbitOptions.Port,
             };
         }
     }

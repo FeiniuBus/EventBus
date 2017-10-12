@@ -128,15 +128,6 @@ namespace EventBus.Subscribe.Infrastructure
                     result = invoker.InvokeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
 
                     _logger.LogInformation($"invoke result: {result} message: {msg.ToJson()}");
-
-                    try
-                    {
-                        _receivedEventPersistenter.ChangeStateAsync(msg.MessageId, msg.TransactId, msg.Group, Core.State.MessageState.Succeeded);
-                    }
-                    catch(Exception ex)
-                    {
-                        _logger.UpdateReceivedMessage(msg, ex);
-                    }
                 }
                 catch(Exception ex)
                 {
@@ -146,6 +137,14 @@ namespace EventBus.Subscribe.Infrastructure
                 {
                     if (result)
                     {
+                        try
+                        {
+                            _receivedEventPersistenter.ChangeStateAsync(msg.MessageId, msg.TransactId, msg.Group, Core.State.MessageState.Succeeded);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.UpdateReceivedMessage(msg, ex);
+                        }
                         context.Ack();
                         _logger.LogInformation($"ack message {msg.ToJson()}");
                     }

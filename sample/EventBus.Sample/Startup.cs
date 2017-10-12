@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
 using EventBus.Sample.FailedEventHandlers;
 using EventBus.Core;
+using EventBus.Alert;
 
 namespace EventBus.Sample
 {
@@ -53,10 +54,15 @@ namespace EventBus.Sample
             services.AddSub(options =>
             {
                 options.ConsumerClientCount = 5;
-                options.DefaultGroup = "eventbus.testgroup7";
+                options.DefaultGroup = "FeiniuBusPayment1111";
 
-                options.RegisterCallback("eventbus.testtopic", typeof(NewUserEventHandler));
+                options.RegisterCallback("eventbus.testtopic", "Hello-World", typeof(NewUserEventHandler));
+                options.RegisterCallback("charge.success", typeof(NewUserEventHandler));
                 //options.RegisterCallback("eventbus.testtopic", "eventbus.testgroup2", typeof(NewUserEventHandler));
+            });
+
+            services.AddEventBusAlert(opts =>
+            {
             });
         }
 

@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\EventBus.Alert\EventBus.Alert.csproj" />
     <ProjectReference Include="..\..\src\EventBus.Publish\EventBus.Publish.csproj" />
     <ProjectReference Include="..\..\src\EventBus.Subscribe\EventBus.Subscribe.csproj" />
   </ItemGroup>

@@ -46,7 +46,7 @@ namespace EventBus.Subscribe.Infrastructure
 
             Channel.ExchangeDeclare(_exchange, "topic", true);
             Channel.ExchangeDeclare(_rabbitOptions.DefaultDeadLetterExchange, "topic", true);
-
+            
             var args = new Dictionary<string, object>
             {
                 ["x-message-ttl"] = _rabbitOptions.QueueMessageExpires,
