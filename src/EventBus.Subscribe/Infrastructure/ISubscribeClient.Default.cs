@@ -66,7 +66,9 @@ namespace EventBus.Subscribe.Infrastructure
             if (Connection != null) return;
             
             var factory = _connectionFactoryAccessor.ConnectionFactory;
+
             Connection = factory.CreateConnection();
+           
         }
 
         public void Subscribe(string[] topics)
@@ -113,6 +115,37 @@ namespace EventBus.Subscribe.Infrastructure
             _logger.LogInformation($"receive messages {context.ToJson()}");
 
             OnReceive?.Invoke(context);
+        }
+
+        private void OpenConnection()
+        {
+            if (Connection != null && Connection.IsOpen) return;
+
+            Connection = _connectionFactoryAccessor.ConnectionFactory.CreateConnection();
+            Connection.CallbackException += (sender, e) =>
+            {
+                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "CallbackException", Errors = e.Exception.GetMessages(), Detail = e.Detail }.ToJson());
+            };
+            Connection.ConnectionBlocked += (sender, e) =>
+            {
+                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "ConnectionBlocked", Reason = e.Reason }.ToJson());
+            };
+            Connection.ConnectionRecoveryError += (sender, e) =>
+            {
+                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "ConnectionRecoveryError", Errors = e.Exception.GetMessages() }.ToJson());
+            };
+            Connection.ConnectionShutdown += (sender, e) =>
+            {
+                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "ConnectionShutdown", Cause = e.Cause, ClassId = e.ClassId, ShutdownInitiator = e.Initiator, e.MethodId, e.ReplyCode, e.ReplyText }.ToJson());
+            };
+            Connection.ConnectionUnblocked += (sender, e) =>
+            {
+                _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "ConnectionUnblocked" }.ToJson());
+            };
+            Connection.RecoverySucceeded += (sender, e) =>
+            {
+                _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "RecoverySucceeded" }.ToJson());
+            };
         }
     }
 }
