@@ -37,10 +37,23 @@ namespace EventBus.Publish
 
         public void Dispose()
         {
-            _channel.Close();
-            _channel.Dispose();
-            _connection.Close();
-            _connection.Dispose();
+            try
+            {
+                if (_channel != null)
+                {
+                    _channel.Close();
+                    _channel.Dispose();
+                }
+                if (_connection != null)
+                {
+                    _connection.Close();
+                    _connection.Dispose();
+                }
+            }
+            catch
+            {
+
+            }
         }
 
         public async Task PublishAsync(string exchange, string routingKey, byte[] body)
