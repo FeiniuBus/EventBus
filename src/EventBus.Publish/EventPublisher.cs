@@ -5,6 +5,7 @@ using EventBus.Core.State;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Data;
@@ -21,6 +22,7 @@ namespace EventBus.Publish
         private readonly IPublishedEventPersistenter _publishedEventPersistenter;
         private readonly IMessageQueueTransaction _messageQueueTransaction;
         private readonly IMessageSerializer _messageSerializer;
+        private readonly ILogger _logger;
         public EventPublisher(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
@@ -28,7 +30,7 @@ namespace EventBus.Publish
             _publishedEventPersistenter = serviceProvider.GetRequiredService< IPublishedEventPersistenter>();
             _messageQueueTransaction = serviceProvider.GetRequiredService< IMessageQueueTransaction>();
             _messageSerializer = serviceProvider.GetRequiredService< IMessageSerializer>();
-
+            _logger = serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger<EventPublisher>();
             TransactID = _identityGenerator.NextIdentity();
         }
 
