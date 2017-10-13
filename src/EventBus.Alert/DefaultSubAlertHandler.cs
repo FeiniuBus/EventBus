@@ -13,15 +13,18 @@ namespace EventBus.Alert
         private readonly SMSAlertOptions _options;
         private readonly ILastAlertMemento _memento;
         private readonly IFeiniuBusNotification _feiniuBusNotification;
+        private readonly IMessageDecoder _decoder;
         private readonly ILogger<DefaultSubAlertHandler> _logger;
 
         public DefaultSubAlertHandler(IOptions<SMSAlertOptions> optionsAccessor
             , ILastAlertMemento memento
             , IFeiniuBusNotification feiniuBusNotification
+            , IMessageDecoder decoder
             , ILogger<DefaultSubAlertHandler> logger)
         {
             _options = optionsAccessor.Value;
             _memento = memento;
+            _decoder = decoder;
             _feiniuBusNotification = feiniuBusNotification;
             _logger = logger;
         }
@@ -63,9 +66,10 @@ namespace EventBus.Alert
             }
         }
 
-        private static string CreateMessage(MessageContext context)
+        private string CreateMessage(MessageContext context)
         {
-            return $"你以{context.Queue}订阅的主题{context.Topic}处理失败，请即时处理。";
+            var msg = _decoder.Decode(context);
+            return $"你以{context.Queue}订阅的主题{context.Topic}消息Id:{msg.Id}处理失败，请即时处理。";
         }
     }
 }
