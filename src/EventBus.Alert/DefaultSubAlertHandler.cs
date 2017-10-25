@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using System;
 using FeiniuBusSDK.Notification;
 using System.Linq;
+using EventBus.Core.Internal.Model;
 using Microsoft.Extensions.Logging;
 
 namespace EventBus.Alert
@@ -29,7 +30,7 @@ namespace EventBus.Alert
             _logger = logger;
         }
 
-        public async Task HandleAsync(MessageContext context)
+        public async Task HandleAsync(ReceivedMessage message)
         {
             if (!_options.Enable)
             {
@@ -53,7 +54,7 @@ namespace EventBus.Alert
             var request = new FeiniuBusSDK.Notification.Model.CreateSmsRequest
             {
                 Numbers = _options.Contacts,
-                Message = CreateMessage(context)
+                Message = CreateMessage(message)
             };
 
             try
@@ -66,10 +67,9 @@ namespace EventBus.Alert
             }
         }
 
-        private string CreateMessage(MessageContext context)
+        private string CreateMessage(ReceivedMessage message)
         {
-            var msg = _decoder.Decode(context);
-            return $"你以{context.Queue}订阅的主题{context.Topic}消息Id:{msg.Id}处理失败，请即时处理。";
+            return $"你以{message.Group}订阅的主题{message.RouteKey}消息Id:{message.Id}处理失败，请即时处理。";
         }
     }
 }

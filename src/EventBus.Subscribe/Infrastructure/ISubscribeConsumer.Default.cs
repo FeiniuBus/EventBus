@@ -167,7 +167,7 @@ namespace EventBus.Subscribe.Infrastructure
                             var subFailureHandlers = _serviceProvider.GetServices<ISubFailureHandler>().ToArray();
                             if (subFailureHandlers.Any())
                             {
-                                Task.WhenAll(subFailureHandlers.Select(x => x.HandleAsync(context))).ConfigureAwait(false).GetAwaiter().GetResult();
+                                Task.WhenAll(subFailureHandlers.Select(x => x.HandleAsync(msg))).ConfigureAwait(false).GetAwaiter().GetResult();
                             }
                         }
                         catch (Exception ex)
