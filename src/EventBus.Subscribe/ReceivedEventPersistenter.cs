@@ -88,11 +88,14 @@ namespace EventBus.Subscribe
             sql.AppendLine(@" PRIMARY KEY (`Id`),");
             sql.AppendLine(@"  UNIQUE KEY `Index_EventBus_ReceivedMessage_IDs` (`MessageId`,`TransactId`,`Group`) USING BTREE");
             sql.AppendLine(@") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-
-            using (var connection = await OpenDbConnectionAsync())
+            try
             {
-                await connection.ExecuteAsync(sql.ToString());
+                using (var connection = await OpenDbConnectionAsync())
+                {
+                    await connection.ExecuteAsync(sql.ToString());
+                }
             }
+            catch { }
         }
 
         public async Task InsertAsync(object message)

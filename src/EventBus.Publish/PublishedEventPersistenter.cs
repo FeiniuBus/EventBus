@@ -135,10 +135,15 @@ namespace EventBus.Publish
             sql.AppendLine(@"  `CreationDate` datetime NOT NULL,");
             sql.AppendLine(@"  PRIMARY KEY(`Id`)");
             sql.AppendLine(@") ENGINE=InnoDB DEFAULT CHARSET=utf8;");
-            using (var connection = new MySql.Data.MySqlClient.MySqlConnection(_eventBusMySQLOptions.ConnectionString))
+
+            try
             {
-                await connection.ExecuteAsync(sql.ToString());
+                using (var connection = new MySql.Data.MySqlClient.MySqlConnection(_eventBusMySQLOptions.ConnectionString))
+                {
+                    await connection.ExecuteAsync(sql.ToString());
+                }
             }
+            catch { }
         }
     }
 
