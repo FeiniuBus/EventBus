@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.3
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sample", "sample", "{5A4E9AF3-C199-4304-A0DE-C3AA652A71A9}"
 EndProject
@@ -21,7 +21,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Publish.Sample", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Core.Test", "test\EventBus.Core.Test\EventBus.Core.Test.csproj", "{A7D74AA8-89AF-4650-9659-0839CC9D8D50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus.Alert", "src\EventBus.Alert\EventBus.Alert.csproj", "{DCD5A7C5-062C-4782-B6A4-1AC58C17E36D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventBus.Alert", "src\EventBus.Alert\EventBus.Alert.csproj", "{DCD5A7C5-062C-4782-B6A4-1AC58C17E36D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventBus.NuGet.Sample", "EventBus.NuGet.Sample\EventBus.NuGet.Sample.csproj", "{B54A37A1-2626-4E9E-BFF0-510F8295E6B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{DCD5A7C5-062C-4782-B6A4-1AC58C17E36D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCD5A7C5-062C-4782-B6A4-1AC58C17E36D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCD5A7C5-062C-4782-B6A4-1AC58C17E36D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B54A37A1-2626-4E9E-BFF0-510F8295E6B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B54A37A1-2626-4E9E-BFF0-510F8295E6B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B54A37A1-2626-4E9E-BFF0-510F8295E6B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B54A37A1-2626-4E9E-BFF0-510F8295E6B2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +75,7 @@ Global
 		{7CEC99E8-7348-440D-909B-1D203B3F7965} = {5A4E9AF3-C199-4304-A0DE-C3AA652A71A9}
 		{A7D74AA8-89AF-4650-9659-0839CC9D8D50} = {0D19674D-66F4-461F-86B3-DABAAE3BB9D1}
 		{DCD5A7C5-062C-4782-B6A4-1AC58C17E36D} = {AD01A83A-D3A7-4CF5-AD89-F9C2C7FC359A}
+		{B54A37A1-2626-4E9E-BFF0-510F8295E6B2} = {5A4E9AF3-C199-4304-A0DE-C3AA652A71A9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {6715B2A1-ED9A-41D1-8968-2C76A770658C}
