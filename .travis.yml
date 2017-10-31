@@ -18,4 +18,3 @@ script:
   - dotnet add ./$TEST_PROJECT package xunit.runner.console --version 2.3.0-beta5-build3769
   - dotnet restore ./$TEST_PROJECT -r ubuntu.14.04-x64
   - dotnet build ./$TEST_PROJECT -c Release
-  - dotnet test ./$TEST_PROJECT
