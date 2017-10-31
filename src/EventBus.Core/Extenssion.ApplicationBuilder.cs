@@ -8,7 +8,7 @@ namespace EventBus.Core
     {
         public static IApplicationBuilder UseEventBus(this IApplicationBuilder appBuilder)
         {
-            var services = appBuilder.ApplicationServices;
+            var services = appBuilder.ApplicationServices.CreateScope().ServiceProvider;
 
             var bootstrapper = services.GetService<IBootstrapper>();
             bootstrapper.Start();
