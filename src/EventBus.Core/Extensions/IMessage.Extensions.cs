@@ -12,7 +12,7 @@ namespace EventBus.Core.Extensions
 
         public static string GetTransferJson(this IMessage message)
         {
-            return FeiniuBus.Util.FeiniuBusJsonConvert.SerializeObject(message.GetTransferMessage());
+            return FeiniuBus.AspNetCore.Json.FeiniuBusJsonConvert.SerializeObject(message.GetTransferMessage());
         }
     }
 }

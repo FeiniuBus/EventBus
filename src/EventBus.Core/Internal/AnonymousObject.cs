@@ -63,7 +63,7 @@ namespace EventBus.Core.Internal
         public string GetJsonDefinition()
         {
             var defines = GetProperties().Select(x => new KeyValuePair<string, string>(x.MemberName, x.DeclaringType.Name));
-            return FeiniuBus.Util.FeiniuBusJsonConvert.SerializeObject(defines);
+            return FeiniuBus.AspNetCore.Json.FeiniuBusJsonConvert.SerializeObject(defines);
         }
     }
 }

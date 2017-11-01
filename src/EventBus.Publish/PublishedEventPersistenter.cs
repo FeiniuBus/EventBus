@@ -157,7 +157,7 @@ namespace EventBus.Publish
         public IMetaData GetMetaData()
         {
             if (string.IsNullOrEmpty(MetaData)) return null;
-            return FeiniuBus.Util.FeiniuBusJsonConvert.DeserializeObject<MetaData>(MetaData);
+            return FeiniuBus.AspNetCore.Json.FeiniuBusJsonConvert.DeserializeObject<MetaData>(MetaData);
         }
 
         public Type GetContentType()
