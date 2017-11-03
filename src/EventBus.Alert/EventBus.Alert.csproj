@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FeiniuBusSDK.Notification" Version="2.0.0" />
+    <PackageReference Include="Polaris.FNS" Version="2.2.2" />
   </ItemGroup>
 
   <ItemGroup>

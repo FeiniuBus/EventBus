@@ -2,10 +2,11 @@
 using EventBus.Core;
 using Microsoft.Extensions.Options;
 using System;
-using FeiniuBusSDK.Notification;
 using System.Linq;
 using EventBus.Core.Internal.Model;
 using Microsoft.Extensions.Logging;
+using Polaris.FNS;
+using Polaris.FNS.Model;
 
 namespace EventBus.Alert
 {
@@ -13,17 +14,17 @@ namespace EventBus.Alert
     {
         private readonly SMSAlertOptions _options;
         private readonly ILastAlertMemento _memento;
-        private readonly IFeiniuBusNotification _feiniuBusNotification;
         private readonly ILogger<DefaultSubAlertHandler> _logger;
+        private readonly IPolarisFns _fns;
 
         public DefaultSubAlertHandler(IOptions<SMSAlertOptions> optionsAccessor
             , ILastAlertMemento memento
-            , IFeiniuBusNotification feiniuBusNotification
+            , IPolarisFns fns
             , ILogger<DefaultSubAlertHandler> logger)
         {
             _options = optionsAccessor.Value;
             _memento = memento;
-            _feiniuBusNotification = feiniuBusNotification;
+            _fns = fns;
             _logger = logger;
         }
 
@@ -48,15 +49,13 @@ namespace EventBus.Alert
 
             _memento.LastPubAlert = now;
 
-            var request = new FeiniuBusSDK.Notification.Model.CreateSmsRequest
-            {
-                Numbers = _options.Contacts,
-                Message = CreateMessage(context)
-            };
-
             try
             {
-                await _feiniuBusNotification.CreateSmsAsync(request);
+                await _fns.SendSmsAsync(new SendSmsRequest
+                {
+                    Numbers = _options.Contacts,
+                    Message = CreateMessage(context),
+                });
             }
             catch (Exception ex)
             {

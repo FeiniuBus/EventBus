@@ -1,10 +1,11 @@
 ﻿using EventBus.Core;
-using FeiniuBusSDK.Notification;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Polaris.FNS;
+using Polaris.FNS.Model;
 
 namespace EventBus.Alert
 {
@@ -12,18 +13,18 @@ namespace EventBus.Alert
     {
         private readonly SMSAlertOptions _options;
         private readonly ILastAlertMemento _memento;
-        private readonly IFeiniuBusNotification _feiniuBusNotification;
         private readonly ILogger<DefaultPubAlertHandler> _logger;
+        private readonly IPolarisFns _fns;
 
         public DefaultPubAlertHandler(IOptions<SMSAlertOptions> optionsAccessor
             , ILastAlertMemento memento
-            , IFeiniuBusNotification feiniuBusNotification
+            , IPolarisFns fns
             , ILogger<DefaultPubAlertHandler> logger)
         {
             _options = optionsAccessor.Value;
             _memento = memento;
-            _feiniuBusNotification = feiniuBusNotification;
             _logger = logger;
+            _fns = fns;
         }
 
         public async Task HandleAsync(string exchange, string topic, byte[] content)
@@ -47,15 +48,13 @@ namespace EventBus.Alert
 
             _memento.LastSubAlert = now;
 
-            var request = new FeiniuBusSDK.Notification.Model.CreateSmsRequest
-            {
-                Numbers = _options.Contacts,
-                Message = CreateMessage(exchange, topic, content)
-            };
-
             try
             {
-                await _feiniuBusNotification.CreateSmsAsync(request);
+                await _fns.SendSmsAsync(new SendSmsRequest
+                {
+                    Numbers = _options.Contacts,
+                    Message = CreateMessage(exchange, topic, content),
+                });
             }
             catch (Exception ex)
             {
@@ -65,7 +64,7 @@ namespace EventBus.Alert
 
         private static string CreateMessage(string exchange, string topic, byte[] content)
         {
-            return $"你的主题{topic}发送失败，请及时处理。";
+            return $"你的消息exchange={exchange} topic={topic} content={content}发送失败";
         }
     }
 }
