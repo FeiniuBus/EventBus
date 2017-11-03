@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
-    <Version>1.0.6</Version>
+    <Version>1.0.4</Version>
     <PackageProjectUrl>https://github.com/FeiniuBus/EventBus</PackageProjectUrl>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageIconUrl>https://s3.cn-north-1.amazonaws.com.cn/nuget-icons/icon175x175.jpeg</PackageIconUrl>
     <RepositoryUrl>https://github.com/FeiniuBus/EventBus.git</RepositoryUrl>
     <RepositoryType>https://raw.githubusercontent.com/FeiniuBus/EventBus/master/LICENSE</RepositoryType>
-    <Description>Feiniubus EventBus libary</Description>
+    <Description>EventBus 1.x</Description>
   </PropertyGroup>
 
   <ItemGroup>
