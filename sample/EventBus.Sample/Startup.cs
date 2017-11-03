@@ -26,7 +26,7 @@ namespace EventBus.Sample
 
         public IConfigurationRoot Configuration { get; }
 
-        private const string ConnectionString = "Server=192.168.126.138;Port=3306;Database=FeiniuCAP; User=root;Password=kge2001;charset=UTF-8";
+        private const string ConnectionString = "Server=localhost;Port=3306;Database=FeiniuCAP; User=root;Password=123456;charset=UTF-8";
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -41,9 +41,9 @@ namespace EventBus.Sample
                 options.UseEntityframework<SampleDbContext>();
                 options.UseRabbitMQ(rabbit =>
                 {
-                    rabbit.HostName = "192.168.126.138";
-                    rabbit.UserName = "andrew";
-                    rabbit.Password = "kge2001";
+                    rabbit.HostName = "localhost";
+                    rabbit.UserName = "guest";
+                    rabbit.Password = "123456";
                     rabbit.Port = 5672;
                 });
 
@@ -56,12 +56,12 @@ namespace EventBus.Sample
 
             services.AddSub(options =>
             {
-                options.ConsumerClientCount = 5;
+                //options.ConsumerClientCount = 5;
                 options.DefaultGroup = "FeiniuBusPayment1111";
 
-                options.RegisterCallback("eventbus.testtopic", "Hello-World", typeof(NewUserEventHandler));
-                options.RegisterCallback("charge.success", typeof(NewUserEventHandler));
-                //options.RegisterCallback("eventbus.testtopic", "eventbus.testgroup2", typeof(NewUserEventHandler));
+                options.RegisterCallback("charge.ok.shuttle", "shuttle", typeof(NewUserEventHandlerShuttle));
+                options.RegisterCallback("charge.ok.commute", "commute", typeof(NewUserEventHandlerCommuter));
+                options.RegisterCallback("charge.ok.*", "pay", typeof(NewUserEventHandlerAll));
             });
 
             services.AddEventBusAlert(opts =>

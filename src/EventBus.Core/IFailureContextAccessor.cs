@@ -2,6 +2,6 @@
 {
     public interface IFailureContextAccessor
     {
-        FailureContext FailureContext { get; set; }
+        ConsumeFailureContext FailureContext { get; set; }
     }
 }

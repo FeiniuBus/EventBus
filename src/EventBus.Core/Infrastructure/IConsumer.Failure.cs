@@ -34,7 +34,7 @@ namespace EventBus.Core.Infrastructure
             }
         }
 
-        private IClient[] GetClients()
+        private IList<IClient> GetClients()
         {
             if (_subscribeOptions == null) return new IClient[] { };
 
@@ -62,16 +62,15 @@ namespace EventBus.Core.Infrastructure
                         , exchange);
 
                     _disposables.Add(client);
+                    clients.Add(client);
                     RegisterClient(client);
 
                     var topics = exchangeGroupedItems.Value.Select(x => x.Topic).ToArray();
                     client.Subscribe(topics);
-
-                    client.Listening();
                 }
             }
 
-            return clients.ToArray();
+            return clients;
         }
 
         private void RegisterClient(IClient client)

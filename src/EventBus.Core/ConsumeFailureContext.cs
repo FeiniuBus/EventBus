@@ -1,6 +1,6 @@
 ﻿namespace EventBus.Core
 {
-    public class FailureContext
+    public class ConsumeFailureContext
     {
         public string FailureGroup { get; set; }
     }

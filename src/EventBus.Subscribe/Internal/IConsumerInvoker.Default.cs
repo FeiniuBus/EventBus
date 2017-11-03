@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using EventBus.Core.Infrastructure;
 using EventBus.Core;
+using EventBus.Core.Util;
 
 namespace EventBus.Subscribe.Internal
 {
@@ -51,7 +52,7 @@ namespace EventBus.Subscribe.Internal
         private SubscribeInfo GetSubscribe()
         {
             return _subscribeOptions.SubscribeInfos.FirstOrDefault(x => x.Exchange == Context.Exchange
-                && x.Topic == Context.Topic
+                && TopicMatch.IsTopicMatch(Context.Topic, x.Topic)
                 && x.Group == Context.Queue);
         }
 

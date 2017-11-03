@@ -5,7 +5,7 @@ namespace EventBus.Sample.FailedEventHandlers
 {
     public class NewUserFailedMessageHandler : IFailureHandler
     {
-        private readonly FailureContext _context;
+        private readonly ConsumeFailureContext _context;
 
         public NewUserFailedMessageHandler(IFailureContextAccessor accessor)
         {

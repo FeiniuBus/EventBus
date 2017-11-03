@@ -46,10 +46,36 @@ namespace EventBus.Subscribe.Infrastructure
 
             Channel.BasicAcks += (sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Channel", Event = "BasicAcks", e.DeliveryTag, e.Multiple }.ToJson());
             Channel.BasicNacks += (sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Channel", Event = "BasicNacks", e.DeliveryTag, e.Multiple, e.Requeue }.ToJson());
-            Channel.BasicRecoverOk += (sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Channel", Event = "BasicRecoverOk" }.ToJson());
+            Channel.BasicRecoverOk += (sender, e) =>
+            {
+                _logger.LogInformation(new
+                    {
+                        Source = nameof(DefaultSubscribeClient),
+                        Target = "RabbitMQ Channel",
+                        Event = "BasicRecoverOk"
+                    }.ToJson());
+            };
             Channel.BasicReturn += (sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Channel", Event = "BasicReturn", ContentLength = e.Body?.Length, e.Exchange, e.ReplyCode, e.ReplyText, e.RoutingKey }.ToJson());
-            Channel.CallbackException += (sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Channel", Event = "CallbackException", e.Detail, Errors = e.Exception.GetMessages() }.ToJson());
+            Channel.CallbackException += (sender, e) =>
+            {
+                _logger.LogInformation(new
+                    {
+                        Source = nameof(DefaultSubscribeClient),
+                        Target = "RabbitMQ Channel",
+                        Event = "CallbackException",
+                        Errors = e.Exception.GetMessages()
+                    }.ToJson());
+            };
             Channel.FlowControl += (sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Channel", Event = "FlowControl", e.Active }.ToJson());
+            Channel.ModelShutdown += (sender, e) =>
+            {
+                _logger.LogInformation(new
+                {
+                    Source = nameof(DefaultSubscribeClient),
+                    Target = "RabbitMQ Channel",
+                    Event = "ModelShutdown",
+                }.ToJson());
+            };
 
             Channel.ExchangeDeclare(_exchange, "topic", true);
             Channel.ExchangeDeclare(_rabbitOptions.DefaultDeadLetterExchange, "topic", true);
@@ -78,7 +104,7 @@ namespace EventBus.Subscribe.Infrastructure
 
             Connection.CallbackException += (sender, e) =>
             {
-                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "CallbackException", Errors = e.Exception.GetMessages(), Detail = e.Detail }.ToJson());
+                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "CallbackException", Errors = e.Exception.GetMessages() }.ToJson());
             };
             Connection.ConnectionBlocked += (sender, e) =>
             {
@@ -90,13 +116,13 @@ namespace EventBus.Subscribe.Infrastructure
             };
             Connection.ConnectionShutdown += (sender, e) =>
             {
-                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "ConnectionShutdown", Cause = e.Cause, ClassId = e.ClassId, ShutdownInitiator = e.Initiator, e.MethodId, e.ReplyCode, e.ReplyText }.ToJson());
+                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "ConnectionShutdown", ClassId = e.ClassId, e.MethodId, e.ReplyCode, e.ReplyText }.ToJson());
             };
             Connection.ConnectionUnblocked += (sender, e) =>
             {
                 _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "ConnectionUnblocked" }.ToJson());
             };
-
+            
             Connection.RecoverySucceeded += (sender, e) =>
             {
                 _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "RecoverySucceeded" }.ToJson());
@@ -125,9 +151,9 @@ namespace EventBus.Subscribe.Infrastructure
             consumer.ConsumerCancelled += (sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Consumer", Event = "ConsumerCancelled", e.ConsumerTag }.ToJson());
             consumer.Received += (sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Consumer", Event = "Received", e.ConsumerTag, e.DeliveryTag, e.Exchange,e.Redelivered,e.RoutingKey, ContentLength = e.Body.Length }.ToJson());
             consumer.Registered += (sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Consumer", Event = "Registered", e.ConsumerTag }.ToJson());
-            consumer.Shutdown +=(sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Consumer", Event = "Shutdown", e.Cause, e.ClassId, e.MethodId, e.ReplyCode, e.ReplyText }.ToJson());
+            consumer.Shutdown +=(sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Consumer", Event = "Shutdown", e.ClassId, e.MethodId, e.ReplyCode, e.ReplyText }.ToJson());
             consumer.Unregistered += (sender, e) => _logger.LogInformation(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Consumer", Event = "Unregistered", e.ConsumerTag }.ToJson());
-            Channel.BasicConsume(_group, false, consumer);
+            Channel.BasicConsume(_group, true, consumer);
         }
 
         public void Dispose()
@@ -161,7 +187,7 @@ namespace EventBus.Subscribe.Infrastructure
             Connection = _connectionFactoryAccessor.ConnectionFactory.CreateConnection();
             Connection.CallbackException += (sender, e) =>
             {
-                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "CallbackException", Errors = e.Exception.GetMessages(), Detail = e.Detail }.ToJson());
+                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "CallbackException", Errors = e.Exception.GetMessages() }.ToJson());
             };
             Connection.ConnectionBlocked += (sender, e) =>
             {
@@ -173,7 +199,7 @@ namespace EventBus.Subscribe.Infrastructure
             };
             Connection.ConnectionShutdown += (sender, e) =>
             {
-                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "ConnectionShutdown", Cause = e.Cause, ClassId = e.ClassId, ShutdownInitiator = e.Initiator, e.MethodId, e.ReplyCode, e.ReplyText }.ToJson());
+                _logger.LogError(new { Source = nameof(DefaultSubscribeClient), Target = "RabbitMQ Connection", Event = "ConnectionShutdown", ClassId = e.ClassId, e.MethodId, e.ReplyCode, e.ReplyText }.ToJson());
             };
             Connection.ConnectionUnblocked += (sender, e) =>
             {

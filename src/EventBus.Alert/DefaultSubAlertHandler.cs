@@ -14,23 +14,20 @@ namespace EventBus.Alert
         private readonly SMSAlertOptions _options;
         private readonly ILastAlertMemento _memento;
         private readonly IFeiniuBusNotification _feiniuBusNotification;
-        private readonly IMessageDecoder _decoder;
         private readonly ILogger<DefaultSubAlertHandler> _logger;
 
         public DefaultSubAlertHandler(IOptions<SMSAlertOptions> optionsAccessor
             , ILastAlertMemento memento
             , IFeiniuBusNotification feiniuBusNotification
-            , IMessageDecoder decoder
             , ILogger<DefaultSubAlertHandler> logger)
         {
             _options = optionsAccessor.Value;
             _memento = memento;
-            _decoder = decoder;
             _feiniuBusNotification = feiniuBusNotification;
             _logger = logger;
         }
 
-        public async Task HandleAsync(ReceivedMessage message)
+        public async Task HandleAsync(FailContext context)
         {
             if (!_options.Enable)
             {
@@ -54,7 +51,7 @@ namespace EventBus.Alert
             var request = new FeiniuBusSDK.Notification.Model.CreateSmsRequest
             {
                 Numbers = _options.Contacts,
-                Message = CreateMessage(message)
+                Message = CreateMessage(context)
             };
 
             try
@@ -67,9 +64,22 @@ namespace EventBus.Alert
             }
         }
 
-        private string CreateMessage(ReceivedMessage message)
+        private static string CreateMessage(FailContext context)
         {
-            return $"你以{message.Group}订阅的主题{message.RouteKey}消息Id:{message.Id}处理失败，请即时处理。";
+            var msg = "";
+
+            if (context.Raw != null)
+            {
+                msg = $"您订阅的消息{context.Raw}处理失败，失败原因{context.ExceptionMessage}";
+            }
+
+            if (context.State is ReceivedMessage receivedMessage)
+            {
+
+                msg = $"您订阅的消息处理失败，Id={receivedMessage.Id},TransactId={receivedMessage.TransactId},Group={receivedMessage.Group},Topic={receivedMessage.RouteKey},失败原因:{context.ExceptionMessage}";
+            }
+
+            return msg;
         }
     }
 }

@@ -68,7 +68,7 @@ namespace EventBus.Core.Internal
             var json = FeiniuBus.AspNetCore.Json.FeiniuBusJsonConvert.SerializeObject(xDeath);
             var jarray = JArray.Parse(json);
             var jstr = (jarray[0]["queue"]).ToObject<string>();
-            accessor.FailureContext = new FailureContext
+            accessor.FailureContext = new ConsumeFailureContext
             {
                 FailureGroup = jstr
             };

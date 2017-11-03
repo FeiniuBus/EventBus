@@ -4,11 +4,13 @@ using EventBus.Core.Infrastructure;
 using EventBus.Subscribe.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using EventBus.Core.Internal.Model;
 
 namespace EventBus.Subscribe.Infrastructure
 {
@@ -20,6 +22,8 @@ namespace EventBus.Subscribe.Infrastructure
         private readonly IReceivedEventPersistenter _receivedEventPersistenter;
         private readonly IMessageDecoder _messageDecoder;
         private readonly ILogger<DefaultSubscribeConsumer> _logger;
+
+        public TaskFactory Factory { get; }
 
         public DefaultSubscribeConsumer(IServiceProvider serviceProvider
             , IReceivedEventPersistenter receivedEventPersistenter
@@ -33,18 +37,20 @@ namespace EventBus.Subscribe.Infrastructure
             _receivedEventPersistenter = receivedEventPersistenter;
             _messageDecoder = messageDecoder;
             _logger = logger;
+
+            Factory = new TaskFactory(TaskCreationOptions.LongRunning, TaskContinuationOptions.LongRunning);
         }
 
         public void Start()
         {
             var clients = GetClients();
-            foreach(var client in clients)
+            foreach (var client in clients)
             {
                 client.Listening();
             }
         }
 
-        private ISubscribeClient[] GetClients()
+        private IList<ISubscribeClient> GetClients()
         {
             var subscribeInfos = _subscribeOptions.SubscribeInfos;
             var groupedInfos = subscribeInfos.GroupBy(x => x.Group)
@@ -57,11 +63,11 @@ namespace EventBus.Subscribe.Infrastructure
             var connectfactoryAccessor = _serviceProvider.GetRequiredService<IConnectionFactoryAccessor>();
             var rabbitOption = _serviceProvider.GetRequiredService<RabbitOptions>();
 
-            foreach(var queueGroupedItems in groupedInfos)
+            foreach (var queueGroupedItems in groupedInfos)
             {
-                foreach(var exchangeGroupedItems in queueGroupedItems.Value)
+                foreach (var exchangeGroupedItems in queueGroupedItems.Value)
                 {
-                    for(var i = 0; i < _subscribeOptions.ConsumerClientCount; ++i)
+                    for (var i = 0; i < _subscribeOptions.ConsumerClientCount; ++i)
                     {
                         var exchange = string.IsNullOrEmpty(exchangeGroupedItems.Key) ? rabbitOption.DefaultExchangeName : exchangeGroupedItems.Key;
 
@@ -72,119 +78,147 @@ namespace EventBus.Subscribe.Infrastructure
                             , exchange);
 
                         _disposables.Add(client);
+                        clients.Add(client);
                         RegisterClient(client);
 
                         var topics = exchangeGroupedItems.Value.Select(x => x.Topic).ToArray();
                         client.Subscribe(topics);
-
-                        client.Listening();
                     }
                 }
             }
 
-            return clients.ToArray();
+            return clients;
+        }
+
+        private async Task MessageHandle(object ctx)
+        {
+            var context = (MessageContext)ctx;
+            ReceivedMessage msg = null;
+
+            try
+            {
+                msg = _messageDecoder.Decode(context);
+            }
+            catch (Exception ex)
+            {
+                _logger.DecodeError(context, ex);
+
+                HandleError(_serviceProvider, new FailContext
+                {
+                    Raw = Encoding.UTF8.GetString(context.Content),
+                    ExceptionMessage = ex.Message
+                });
+
+                return;
+            }
+
+            try
+            {
+                await _receivedEventPersistenter.InsertAsync(msg);
+            }
+            catch (Exception e)
+            {
+                _logger.ReceivedEventPersistenterInsert(msg, e);
+
+                HandleError(_serviceProvider, new FailContext
+                {
+                    ExceptionMessage = e.Message,
+                    Raw = Encoding.UTF8.GetString(context.Content),
+                });
+
+                return;
+            }
+
+            var result = false;
+
+            try
+            {
+                var invoker = new DefaultConsumerInvoker(_serviceProvider, context);
+                result = await invoker.InvokeAsync();
+
+                _logger.LogInformation($"invoke result: {result} message: {msg.ToJson()}");
+            }
+            catch (Exception ex)
+            {
+                _logger.InvokeConsumer(context, msg, ex);
+            }
+            finally
+            {
+                if (result)
+                {
+                    try
+                    {
+                        await _receivedEventPersistenter.ChangeStateAsync(msg.MessageId, msg.TransactId, msg.Group, Core.State.MessageState.Succeeded);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.UpdateReceivedMessage(msg, ex);
+                    }
+                    _logger.LogInformation($"message invoke true {msg.ToJson()}");
+                }
+                else
+                {
+                    _logger.LogInformation($"invoke false {msg.ToJson()}");
+
+                    try
+                    {
+                        await _receivedEventPersistenter.ChangeStateAsync(msg.MessageId, msg.TransactId, msg.Group, Core.State.MessageState.Failed);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(110, ex, $"fail to update received message[ignore]: {msg.ToJson()}");
+                    }
+
+                    HandleError(_serviceProvider, new FailContext
+                    {
+                        ExceptionMessage = "",
+                        State = msg,
+                    });
+                }
+            }
+
         }
 
         private void RegisterClient(ISubscribeClient client)
         {
             client.OnReceive = (MessageContext context) =>
             {
-                Core.Internal.Model.ReceivedMessage msg = null;
-
-                try
-                {
-                    msg = _messageDecoder.Decode(context);
-                }
-                catch(Exception ex)
-                {
-                    context.Reject(true);
-                    _logger.DecodeError(context, ex);
-                    return;
-                }
-
-                try
-                {
-                    _receivedEventPersistenter.InsertAsync(msg);
-                }
-                catch(Exception e)
-                {
-                    context.Reject(true);
-                    _logger.ReceivedEventPersistenterInsert(msg, e);
-                    return;
-                }
-
-                bool result = false;
-                DefaultConsumerInvoker invoker = null;
-                try
-                {
-                    invoker = new DefaultConsumerInvoker(_serviceProvider, context);
-                }
-                catch(Exception e)
-                {
-                    _logger.CreateDefaultConsumerInvoker(context, e);
-                }
-                try
-                {
-                    result = invoker.InvokeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-
-                    _logger.LogInformation($"invoke result: {result} message: {msg.ToJson()}");
-                }
-                catch(Exception ex)
-                {
-                    _logger.InvokeConsumer(context, msg, ex);
-                }
-                finally
-                {
-                    if (result)
-                    {
-                        try
-                        {
-                            _receivedEventPersistenter.ChangeStateAsync(msg.MessageId, msg.TransactId, msg.Group, Core.State.MessageState.Succeeded);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.UpdateReceivedMessage(msg, ex);
-                        }
-                        context.Ack();
-                        _logger.LogInformation($"ack message {msg.ToJson()}");
-                    }
-                    else
-                    {
-                        context.Reject();
-                        _logger.LogInformation($"reject message {msg.ToJson()}");
-
-                        try
-                        {
-                            _receivedEventPersistenter.ChangeStateAsync(msg.MessageId, msg.TransactId, msg.Group, Core.State.MessageState.Failed);
-                        }
-                        catch(Exception ex)
-                        {
-                            _logger.LogError(110, ex, $"fail to update received message[ignore]: {msg.ToJson()}");
-                        }
-
-                        try
-                        {
-                            var subFailureHandlers = _serviceProvider.GetServices<ISubFailureHandler>().ToArray();
-                            if (subFailureHandlers.Any())
-                            {
-                                Task.WhenAll(subFailureHandlers.Select(x => x.HandleAsync(msg))).ConfigureAwait(false).GetAwaiter().GetResult();
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(110, ex, $"SubFailureHandler调用失败");
-                        }
-                    }
-                }
+                Factory.StartNew(MessageHandle, context);
             };
         }
 
         public void Dispose()
         {
-            foreach(var disposable in _disposables)
+            foreach (var disposable in _disposables)
             {
                 disposable.Dispose();
             }
+        }
+
+        private static void HandleError(IServiceProvider serviceProvider, FailContext context)
+        {
+            ThreadPool.QueueUserWorkItem((state) =>
+            {
+                try
+                {
+                    var handlers = serviceProvider.GetServices<ISubFailureHandler>();
+                    foreach (var handler in handlers)
+                    {
+                        handler.HandleAsync(context);
+                    }
+                }
+                catch
+                {
+                    // ignored
+                }
+            });
+        }
+
+        class InvokeState
+        {
+            public IServiceProvider ServiceProvider { get; set; }
+
+            public MessageContext MessageContext { get; set; }
         }
     }
 }

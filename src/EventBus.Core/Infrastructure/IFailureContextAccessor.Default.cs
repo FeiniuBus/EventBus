@@ -2,6 +2,6 @@
 {
     public class DefaultFailureContextAccessor : IFailureContextAccessor
     {
-        public FailureContext FailureContext { get ; set ; }
+        public ConsumeFailureContext FailureContext { get ; set ; }
     }
 }

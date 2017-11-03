@@ -41,23 +41,23 @@ namespace EventBus.Subscribe
             }
             if (result == null) throw new AffectedRowsCountUnExpectedException(1, 0);
 
-            var args = new StateChangedArgs(result.State, messageState);
-            var metaDataObj = result.GetMetaData();
-            var stateChangeHandlers = _serviceProvider.GetServices<IStateChangeHandler>().Where(handler => handler.CanHandle(MessageType.Subscribed, result.Content, metaDataObj, args));
-            if (stateChangeHandlers.Any())
-            {
-                foreach (var handler in stateChangeHandlers)
-                {
-                    try
-                    {
-                        await handler.HandleAsync(MessageType.Subscribed, result.Content, metaDataObj, args);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"An exception was thrown during {handler.GetType().FullName} executing.{ex.Message}");
-                    }
-                }
-            }
+            //var args = new StateChangedArgs(result.State, messageState);
+            //var metaDataObj = result.GetMetaData();
+            //var stateChangeHandlers = _serviceProvider.GetServices<IStateChangeHandler>().Where(handler => handler.CanHandle(MessageType.Subscribed, result.Content, metaDataObj, args));
+            //if (stateChangeHandlers.Any())
+            //{
+            //    foreach (var handler in stateChangeHandlers)
+            //    {
+            //        try
+            //        {
+            //            await handler.HandleAsync(MessageType.Subscribed, result.Content, metaDataObj, args);
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            _logger.LogError($"An exception was thrown during {handler.GetType().FullName} executing.{ex.Message}");
+            //        }
+            //    }
+            //}
 
         }
 

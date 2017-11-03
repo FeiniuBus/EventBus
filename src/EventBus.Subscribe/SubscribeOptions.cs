@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EventBus.Core.Util;
 
 namespace EventBus.Subscribe
 {
