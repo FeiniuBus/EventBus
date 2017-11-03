@@ -56,7 +56,7 @@ namespace EventBus.Sample
 
             services.AddSub(options =>
             {
-                //options.ConsumerClientCount = 5;
+                options.ConsumerClientCount = 5;
                 options.DefaultGroup = "FeiniuBusPayment1111";
 
                 options.RegisterCallback("charge.ok.shuttle", "shuttle", typeof(NewUserEventHandlerShuttle));

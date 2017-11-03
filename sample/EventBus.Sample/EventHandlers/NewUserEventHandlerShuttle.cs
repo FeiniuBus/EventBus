@@ -21,8 +21,6 @@ namespace EventBus.Sample.EventHandlers
         {
             _logger.LogInformation($"receive message1 from NewUserEventHandlerShuttle {message} {DateTime.Now}");
 
-            Thread.Sleep(60 * 1000);
-
             return Task.FromResult(true);
         }
     }

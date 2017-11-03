@@ -213,12 +213,5 @@ namespace EventBus.Subscribe.Infrastructure
                 }
             });
         }
-
-        class InvokeState
-        {
-            public IServiceProvider ServiceProvider { get; set; }
-
-            public MessageContext MessageContext { get; set; }
-        }
     }
 }
