@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>1.0.5.5</Version>
+    <TargetFramework>netstandard1.6</TargetFramework>
+    <Version>1.0.6</Version>
     <PackageProjectUrl>https://github.com/FeiniuBus/EventBus</PackageProjectUrl>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageIconUrl>https://s3.cn-north-1.amazonaws.com.cn/nuget-icons/icon175x175.jpeg</PackageIconUrl>
@@ -13,8 +13,9 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="1.50.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.0.0" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.0.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.3" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="1.1.2" />
+    <PackageReference Include="System.Threading.ThreadPool" Version="4.3.0" />
   </ItemGroup>
   
  

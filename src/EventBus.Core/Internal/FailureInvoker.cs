@@ -65,7 +65,7 @@ namespace EventBus.Core.Internal
         {
             var accessor = _serviceProvider.GetRequiredService<IFailureContextAccessor>();
             var xDeath = Context.Args.BasicProperties.Headers["x-death"];
-            var json = FeiniuBus.AspNetCore.Json.FeiniuBusJsonConvert.SerializeObject(xDeath);
+            var json = FeiniuBus.Util.FeiniuBusJsonConvert.SerializeObject(xDeath);
             var jarray = JArray.Parse(json);
             var jstr = (jarray[0]["queue"]).ToObject<string>();
             accessor.FailureContext = new ConsumeFailureContext

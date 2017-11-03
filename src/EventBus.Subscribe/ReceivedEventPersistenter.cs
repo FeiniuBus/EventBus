@@ -194,7 +194,7 @@ namespace EventBus.Subscribe
         public IMetaData GetMetaData()
         {
             if (string.IsNullOrEmpty(MetaData)) return null;
-            return FeiniuBus.AspNetCore.Json.FeiniuBusJsonConvert.DeserializeObject<MetaData>(MetaData);
+            return FeiniuBus.Util.FeiniuBusJsonConvert.DeserializeObject<MetaData>(MetaData);
         }
     }
 }

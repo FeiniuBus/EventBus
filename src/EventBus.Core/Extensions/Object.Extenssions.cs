@@ -9,7 +9,7 @@ namespace EventBus.Core.Extensions
     {
         public static string ToJson(this object obj)
         {
-            return FeiniuBus.AspNetCore.Json.FeiniuBusJsonConvert.SerializeObject(obj);
+            return FeiniuBus.Util.FeiniuBusJsonConvert.SerializeObject(obj);
         }
     }
 }
